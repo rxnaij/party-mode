@@ -1,27 +1,55 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-class App extends Component() {
+class App extends Component {
   render(){
     return (
       <div className="App">
         <h1>Richard's Party Playlist</h1>
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+        <h2>Add Songs</h2>
+        <div>
+          Total Users: 4
+        </div>
+        <div>
+          Total Songs: 12
+        </div>
+        <h3>Adding songs as: </h3>
+        <div>
+          All: 10
+        </div>
+        <div>
+          Richard: 1
+        </div>
+        <div>
+          Steven: 3
+        </div>
+        <div>
+          Quin: 2
+        </div>
+        <div>
+          Michael: 4
+        </div>
+        <h3>Your songs</h3>
+        <h4>1/5 songs added</h4>
+        <div className="filled">
+          <input type="checkbox" name="" id=""/>
+          <h5>Sad Valentine</h5>
+          <h6>No Vacation</h6>
+          <button>Preview</button>
+        </div>
+        <div className="empty">
+          Add song or give slot to friend
+        </div>
+        <div className="empty">
+          Add song or give slot to friend
+        </div>
+        <div className="empty">
+          Add song or give slot to friend
+        </div>
+        <div className="empty">
+          Add song or give slot to friend
+        </div>
+      </div> // End .App
     );
   }
 }
