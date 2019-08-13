@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+// import 'reset-css';
 import './App.css';
 
 class App extends Component {
@@ -18,16 +19,34 @@ class App extends Component {
           All: 10
         </div>
         <div>
-          Richard: 1
+          Andrew: 1
         </div>
         <div>
           Steven: 3
         </div>
         <div>
+          Julia: 2
+        </div>
+        <div>
           Quin: 2
         </div>
         <div>
-          Michael: 4
+          Christina: 4
+        </div>
+        <div>
+          Richard: 2
+        </div>
+        <div>
+          Rosie: 2
+        </div>
+        <div>
+          Keeling: 2
+        </div>
+        <div>
+          Michael: 2
+        </div>
+        <div>
+          Sophia: 2
         </div>
         <h3>Your songs</h3>
         <h4>1/5 songs added</h4>
