@@ -132,11 +132,26 @@ class App extends Component {
     this.state = {
       data: fakeData,
       allUsersVisible: false,
+      addUserModalIsVisible: false
     }
+    this.showAddUserModal = this.showAddUserModal.bind(this);
+    this.hideAddUserModal = this.hideAddUserModal.bind(this);
+  }
+
+  showAddUserModal() {
+    this.setState({
+      addUserModalIsVisible: true
+    });
+  }
+
+  hideAddUserModal() {
+    this.setState({
+      addUserModalIsVisible: false
+    });
   }
 
   componentDidMount() {
-    // Fake data loading for now
+    // Fake initial data-loading for now
     // Adds new states
     this.setState((state, props) => ({
       currentUser: state.data.users.find( (user) => user.name === 'Michael'),
@@ -145,11 +160,14 @@ class App extends Component {
   }
 
   render(){
+    // Data check (for debugging)
     this.state.currentUser && console.log(this.state.currentUser);
+    // Total stats of all users
     const totalUsers = this.state.data.users.length;
     const totalSongs = this.state.data.users.reduce(
       (sumSongs, user) => sumSongs += user.songs.length
       , 0);
+    // Components to render
     const usersToRender = this.state.allUsersVisible
       ? totalUsers
       : 4;
@@ -184,39 +202,91 @@ class App extends Component {
           Total Songs: { totalSongs }
         </div>
 
-        <h3>Adding songs as: </h3>
-        <button onClick={ () =>
-          this.setState({
-            allUsersVisible: !this.state.allUsersVisible
-          })
-        }>Show all</button>
-        <div onClick={() => {
-          const allSongs = this.state.data.users.reduce((list, user) =>
-            list.concat(user.songs)
-          , []);
-          console.log(allSongs)
-          this.setState({
-            currentUser: {
-              name: 'All',
-              songs: allSongs
-            }
-          })
-        }
-        }>
-          All: { totalSongs }
-        </div>
-        {
-          this.state.data.users.slice(0, usersToRender).map(user =>
-            <div onClick={() => 
-                this.setState({
-                  currentUser: user
-                })
+        <div id="SongWrapperComponent">
+          <h3>Adding songs as: </h3>
+          <button onClick={ () =>
+            this.setState({
+              allUsersVisible: !this.state.allUsersVisible
+            })
+          }>Show all</button>
+          <div onClick={() => {
+            // Array of all users' songs
+            const allSongs = this.state.data.users.reduce((list, user) =>
+              list.concat(user.songs)
+            , []);
+            console.log(allSongs); // Data check
+            this.setState({
+              currentUser: {
+                name: 'All',
+                songs: allSongs
               }
-              key={user.id}>
-              {user.name}: {user.songs.length}
+            });
+          }
+          }>
+            All: { totalSongs }
+          </div>
+          {
+            this.state.data.users.slice(0, usersToRender).map(user =>
+              <div onClick={() => 
+                  this.setState({
+                    currentUser: user
+                  })
+                }
+                key={user.id}>
+                {user.name}: {user.songs.length}
+              </div>
+            )
+          }
+          <button onClick={() => this.showAddUserModal()}><FontAwesomeIcon icon={faPlus} /> Add new collaborator</button>
+          {
+            this.state.addUserModalIsVisible &&
+            <div style={{
+              zIndex: 1,
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              right: 0,
+              left: 0,
+              backgroundColor: 'hsla(0,0%,0%,50%)'
+            }}>
+              <div style={{
+                zIndex: 2,
+                display: 'inline-block',
+                margin: '0 auto',
+                padding: '2rem',
+                backgroundColor: 'white'
+              }}>
+                <label to="newUserName">Add new collaborator:</label>
+                <input type="text" name="newUserName" id="newUserName"/>
+                <button style={{
+                  backgroundColor: 'red'
+                }} onClick={() => this.hideAddUserModal()}>
+                  Cancel
+                </button>
+                <button style={{
+                  backgroundColor: 'green'
+                }} onClick={() => {
+                  if (document.getElementById('newUserName').value) {
+                    const currentData = this.state.data;
+                    currentData.users.push({
+                      name: document.getElementById('newUserName').value,
+                      id: Math.floor(Math.random() * 1000),
+                      songs: []
+                    });
+                    this.setState({
+                      data: currentData
+                    });
+                    console.log(currentData)
+                  }
+                  this.hideAddUserModal()
+                }}>
+                  Add
+                </button>
+              </div>
             </div>
-          )
-        }
+            
+          }
+        </div>
 
         <h3>Your songs</h3>
         {
