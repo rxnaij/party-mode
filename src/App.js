@@ -5,8 +5,8 @@ import './App.css';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCheckSquare, faPlus } from '@fortawesome/free-solid-svg-icons'
-library.add(faCheckSquare, faPlus)
+import { faCheckSquare, faPlus, faHands } from '@fortawesome/free-solid-svg-icons'
+library.add(faCheckSquare, faPlus, faHands)
 
 // Fake server data
 const fakeData = {
@@ -126,16 +126,192 @@ const fakeData = {
   ]
 }
 
+const inlineBlockStyle = {
+  display: 'inline-block',
+  marginRight: '1rem'
+};
+
+// TotalCounter component
+const TotalCounter = props => {
+  const style = {
+    display: 'inline-block',
+    marginRight: '1rem'
+  }
+  return (
+    <div style={style}>
+      {'Total ' + props.name + ': ' + props.value}
+    </div>
+  );
+};
+
+const Profile = props => {
+  return(
+    <div
+      onClick={ () => props.setCurrentUser(props.user) }
+      key={props.user.id}
+    >
+      {props.user.name}: {props.user.songs.length}
+    </div>
+  )
+};
+
+const ModalShade = props => {
+  const style = {
+    zIndex: 1,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    backgroundColor: 'hsla(0,0%,0%,50%)'
+  }
+
+  return(
+    <div style={ style }>
+      { props.children }
+    </div>
+  )
+}
+
+/* ADD NEW USER BUTTON */
+const AddNewUserButton = props => {
+  const style={
+    zIndex: 2,
+    display: 'inline-block',
+    margin: '0 auto',
+    padding: '2rem',
+    backgroundColor: 'white'
+  }
+  
+  return(
+    <ModalShade>
+      <div style={ style }>
+        <form>
+          <label to="newUserName">Add new collaborator:</label>
+          <input type="text" name="newUserName" id="newUserName"/>
+          <button onClick={ () => this.props.close() }>
+            Cancel
+          </button>
+          <button onClick={() => {
+            if (document.getElementById('newUserName').value) {
+              const users = props.users;
+              const newUser = {
+                name: document.getElementById('newUserName').value,
+                id: users.length + 1,
+                songs: []
+              }
+              props.addUser(newUser);
+              props.close();
+            }
+          }}>
+            Add
+          </button>
+        </form>
+      </div>
+    </ModalShade>
+  )
+}
+
+/* SONG SLOTS */
+
+const songSlotStyle = {
+  border: '1px solid black',
+  borderRadius: '8px',
+  maxWidth: '70%',
+  margin: '0 auto'
+};
+
+// Slot that contains a song belonging to the current user in the app
+const FilledSongSlot = props => {
+  return(
+    <div style={ songSlotStyle }>
+      <input type="checkbox" name="" id="" style={ inlineBlockStyle } />
+      <div style={ inlineBlockStyle }>
+        <h5>{props.song.title}</h5>
+        <h6>{props.song.artist}</h6>
+      </div>
+      <button>Preview</button>
+    </div>
+  )
+}
+
+// TODO: add logic for slot donation
+const EmptySongSlot = () => {
+  return(
+    <div style={ songSlotStyle }>
+      <button style={{ ...inlineBlockStyle }}>
+        <FontAwesomeIcon icon={faPlus} />
+        <span>Add song</span>
+      </button>
+      <button 
+        style={{ ...inlineBlockStyle }}
+      >
+        <FontAwesomeIcon icon={faHands} />
+        <span>Donate slot to friend</span>
+      </button>
+    </div>
+  )
+}
+
+// **Potential new logic:
+// Create an array with $songLimit number of EmptySongSlots
+// find() EmptySongSlots
+// Remove (or replace?)
+const SongWrapper = props => {
+  /* Fills an array with FilledSongSlots for each song
+     that a user has already added.
+     Then EmptySongSlots are added to the array until 
+     the array's length becomes equal to songLimit. 
+  */
+  const slotsToRender = props.songs.map(song =>
+    <FilledSongSlot song={song} />
+  );
+  for (let i = 0; i < props.songLimit - props.songs.length; i++) {
+    slotsToRender.push(<EmptySongSlot />);
+  }
+
+  return(
+    <div>
+      { slotsToRender }
+    </div>
+  );
+};
+
+// App component
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      data: fakeData,
+      users: fakeData.users,
       allUsersVisible: false,
       addUserModalIsVisible: false
     }
+    // Binding state helper functions
+    this.addUser = this.addUser.bind(this);
+    this.setCurrentUser = this.setCurrentUser.bind(this);
     this.showAddUserModal = this.showAddUserModal.bind(this);
     this.hideAddUserModal = this.hideAddUserModal.bind(this);
+  }
+
+  addUser(newUser){
+    const updatedUsers = this.state.users;
+    updatedUsers.push(newUser);
+    this.setState({
+      users: updatedUsers
+    })
+  }
+
+  setCurrentUser(user) {
+    this.setState({
+      currentUser: user
+    })
+  }
+
+  toggleAllUsersList() {
+    const toggle = !this.state.allUsersVisible
+    this.setState({
+      allUsersVisible: toggle
+    })
   }
 
   showAddUserModal() {
@@ -154,7 +330,7 @@ class App extends Component {
     // Fake initial data-loading for now
     // Adds new states
     this.setState((state, props) => ({
-      currentUser: state.data.users.find( (user) => user.name === 'Michael'),
+      currentUser: state.users.find( (user) => user.name === 'Michael'),
       songLimit: 5
     }));
   }
@@ -163,128 +339,51 @@ class App extends Component {
     // Data check (for debugging)
     this.state.currentUser && console.log(this.state.currentUser);
     // Total stats of all users
-    const totalUsers = this.state.data.users.length;
-    const totalSongs = this.state.data.users.reduce(
+    const totalUsers = this.state.users.length;
+    const totalSongs = this.state.users.reduce(
       (sumSongs, user) => sumSongs += user.songs.length
       , 0);
+    // "All" songs for "All" profile
+    const allUsers = {
+      name: 'All',
+      songs: this.state.users.reduce( (list, user) => list.concat(user.songs), []) // Translation: "Turn data.users into a list, and for each user, append their collection of songs to the list."
+    }
     // Components to render
     const usersToRender = this.state.allUsersVisible
       ? totalUsers
       : 4;
-    const songSlotsToRender = 
-      this.state.currentUser &&
-      this.state.currentUser.songs.map((song, i) =>
-        <div className="filled" key={i}>
-          <input type="checkbox" name="" id=""/>
-          <h5>{song.title}</h5>
-          <h6>{song.artist}</h6>
-          <button>Preview</button>
-        </div>
-      );
-    if (this.state.currentUser) {
-      for (let i = 0; i < this.state.songLimit - this.state.currentUser.songs.length; i++) {
-        songSlotsToRender.push(
-          <div className="empty">
-            <FontAwesomeIcon icon={faPlus} />
-            <span>Add song or give slot to friend</span>
-          </div>
-        );
-      }
-    }
+
     return (
       <div className="App">
         <h1>Richard's Party Playlist</h1>
         <h2>Add Songs</h2>
-        <div>
-          Total Users: { totalUsers }
-        </div>
-        <div>
-          Total Songs: { totalSongs }
-        </div>
+        <TotalCounter name="Users" value={totalUsers} />
+        <TotalCounter name="Songs" value={totalSongs} />
 
         <div id="SongWrapperComponent">
           <h3>Adding songs as: </h3>
-          <button onClick={ () =>
-            this.setState({
-              allUsersVisible: !this.state.allUsersVisible
-            })
-          }>Show all</button>
-          <div onClick={() => {
-            // Array of all users' songs
-            const allSongs = this.state.data.users.reduce((list, user) =>
-              list.concat(user.songs)
-            , []);
-            console.log(allSongs); // Data check
-            this.setState({
-              currentUser: {
-                name: 'All',
-                songs: allSongs
-              }
-            });
-          }
-          }>
-            All: { totalSongs }
-          </div>
+          <button onClick={ () => this.toggleAllUsersList() }>
+            { this.state.allUsersVisible ? 'Show less' : 'Show all' }
+          </button>
+          {/* "ALL" Profile Component */}
+          <Profile 
+            user={allUsers}
+            setCurrentUser={this.setCurrentUser}
+          />
           {
-            this.state.data.users.slice(0, usersToRender).map(user =>
-              <div onClick={() => 
-                  this.setState({
-                    currentUser: user
-                  })
-                }
-                key={user.id}>
-                {user.name}: {user.songs.length}
-              </div>
+            this.state.users.slice(0, usersToRender).map(user =>
+              <Profile user={user} setCurrentUser={this.setCurrentUser} />
             )
           }
+          {/* User Profile Components */}
           <button onClick={() => this.showAddUserModal()}><FontAwesomeIcon icon={faPlus} /> Add new collaborator</button>
           {
             this.state.addUserModalIsVisible &&
-            <div style={{
-              zIndex: 1,
-              position: 'absolute',
-              top: 0,
-              bottom: 0,
-              right: 0,
-              left: 0,
-              backgroundColor: 'hsla(0,0%,0%,50%)'
-            }}>
-              <div style={{
-                zIndex: 2,
-                display: 'inline-block',
-                margin: '0 auto',
-                padding: '2rem',
-                backgroundColor: 'white'
-              }}>
-                <label to="newUserName">Add new collaborator:</label>
-                <input type="text" name="newUserName" id="newUserName"/>
-                <button style={{
-                  backgroundColor: 'red'
-                }} onClick={() => this.hideAddUserModal()}>
-                  Cancel
-                </button>
-                <button style={{
-                  backgroundColor: 'green'
-                }} onClick={() => {
-                  if (document.getElementById('newUserName').value) {
-                    const currentData = this.state.data;
-                    currentData.users.push({
-                      name: document.getElementById('newUserName').value,
-                      id: Math.floor(Math.random() * 1000),
-                      songs: []
-                    });
-                    this.setState({
-                      data: currentData
-                    });
-                    console.log(currentData)
-                  }
-                  this.hideAddUserModal()
-                }}>
-                  Add
-                </button>
-              </div>
-            </div>
-            
+            <AddNewUserButton
+             users={this.state.users}
+             addUser={this.addUser}
+             close={this.hideAddUserModal}
+            />
           }
         </div>
 
@@ -293,8 +392,8 @@ class App extends Component {
           this.state.currentUser &&
           <div>
             <strong>Current user: { this.state.currentUser.name }</strong>
-            <h4>{ this.state.currentUser.songs.length }/{this.state.songLimit} songs added</h4>
-            { songSlotsToRender }
+            <h4>{ this.state.currentUser.songs.length }/{ this.state.songLimit } songs added</h4>
+            <SongWrapper songs={ this.state.currentUser.songs } songLimit={ this.state.songLimit } />
           </div>
         }
 
