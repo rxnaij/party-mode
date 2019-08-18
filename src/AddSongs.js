@@ -75,19 +75,36 @@ const SearchResults = props => {
     margin: '0 auto'
   };
 
+  const flexContainer = {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    alignItems: 'center'
+  }
+
+  const fakeImg = {
+    backgroundColor: 'gray',
+    width: '4rem',
+    height: '4rem',
+    borderRadius: '4px',
+    boxShadow: '0px 4px 8px hsla(0,0%,0%,0.3)',
+  };
+
   const results = props.query ? (
     props.searchResults.map(result => 
-      <div style={style}>
-        <h5>{result.name}</h5>
-        <h6>
-          {
-            result.type + (
-              result.type !== 'artist'
-              ? ' by ' + result.artist
-              : ''
-            )
-          }
-        </h6>
+      <div style={{...style, ...flexContainer}}>
+        <div style={fakeImg}></div>
+        <div className="track-title-and-type" style={{flexDirection: 'column'}}>
+          <h5>{result.name}</h5>
+          <h6>
+            {
+              result.type + (
+                result.type !== 'artist'
+                ? ' by ' + result.artist
+                : ''
+              )
+            }
+          </h6>
+        </div>
       </div>
       )
     ) : (
@@ -127,7 +144,11 @@ export default function AddSongs() {
           Add song
         </h1>
         <SearchBox handleSearchInputChange={handleSearchInputChange} />
-        <SearchResults query={searchQuery} searchResults={searchResults} />
+        {
+          searchQuery
+          ? <SearchResults query={searchQuery} searchResults={searchResults} />
+          : <p>Play what you love: search for artists, songs, podcasts, and more.</p>
+        }
       </nav>
     </div>
   );
