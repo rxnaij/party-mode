@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 // import 'reset-css';
 import './App.css';
 
+import AddSongs from './AddSongs';
+
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCheckSquare, faPlus, faHands } from '@fortawesome/free-solid-svg-icons'
-library.add(faCheckSquare, faPlus, faHands)
+import { faCheckSquare, faPlus, faHands, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons'
+library.add(faCheckSquare, faPlus, faHands, faTimes, faSearch )
 
 // Fake server data
 const fakeData = {
@@ -396,6 +398,9 @@ class App extends Component {
             <SongWrapper songs={ this.state.currentUser.songs } songLimit={ this.state.songLimit } />
           </div>
         }
+
+        <hr/>
+        <AddSongs />
 
       </div> // End .App
     );
