@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 // import 'reset-css';
 import './App.css';
 
@@ -158,7 +158,7 @@ const Profile = props => {
 };
 
 const ModalShade = props => {
-  const style = {
+  const backgroundStyle = {
     zIndex: 1,
     position: 'absolute',
     top: 0,
@@ -168,48 +168,52 @@ const ModalShade = props => {
     backgroundColor: 'hsla(0,0%,0%,50%)'
   }
 
-  return(
-    <div style={ style }>
-      { props.children }
-    </div>
-  )
-}
-
-/* ADD NEW USER BUTTON */
-const AddNewUserButton = props => {
-  const style={
+  const modalStyle={
     zIndex: 2,
     display: 'inline-block',
     margin: '0 auto',
     padding: '2rem',
     backgroundColor: 'white'
   }
-  
+
   return(
-    <ModalShade>
-      <div style={ style }>
-        <form>
-          <label to="newUserName">Add new collaborator:</label>
-          <input type="text" name="newUserName" id="newUserName"/>
-          <button onClick={ () => this.props.close() }>
-            Cancel
-          </button>
-          <button onClick={() => {
-            if (document.getElementById('newUserName').value) {
-              const users = props.users;
-              const newUser = {
-                name: document.getElementById('newUserName').value,
-                id: users.length + 1,
-                songs: []
-              }
-              props.addUser(newUser);
-              props.close();
-            }
-          }}>
-            Add
-          </button>
-        </form>
+    <div 
+      style={ backgroundStyle }
+      onClick={ () => props.close() }
+    >
+      <div style={ modalStyle }>
+        { props.children }
       </div>
+    </div>
+  )
+}
+
+/* ADD NEW USER BUTTON */
+const AddNewUserButton = props => {
+
+  return(
+    <ModalShade close={props.close} >
+      <form>
+        <label to="newUserName">Add new collaborator:</label>
+        <input type="text" name="newUserName" id="newUserName"/>
+        <button onClick={ () => props.close() }>
+          Cancel
+        </button>
+        <button onClick={() => {
+          if (document.getElementById('newUserName').value) {
+            const users = props.users;
+            const newUser = {
+              name: document.getElementById('newUserName').value,
+              id: users.length + 1,
+              songs: []
+            }
+            props.addUser(newUser);
+            props.close();
+          }
+        }}>
+          Add
+        </button>
+      </form>
     </ModalShade>
   )
 }
@@ -238,20 +242,50 @@ const FilledSongSlot = props => {
 }
 
 // TODO: add logic for slot donation
-const EmptySongSlot = () => {
+const EmptySongSlot = props => {
+
   return(
     <div style={ songSlotStyle }>
-      <button style={{ ...inlineBlockStyle }}>
+      <button style={ inlineBlockStyle }>
         <FontAwesomeIcon icon={faPlus} />
         <span>Add song</span>
       </button>
       <button 
-        style={{ ...inlineBlockStyle }}
+        style={ inlineBlockStyle }
+        onClick={ () => props.setDonateUserModal(true) }
       >
         <FontAwesomeIcon icon={faHands} />
         <span>Donate slot to friend</span>
       </button>
     </div>
+  )
+}
+
+const DonateModal = props => {
+  return(
+    <ModalShade close={props.close} >
+      <button onClick={() => props.close()}>
+        Close
+      </button>
+      <h3>Select the user you would like to give a slot to.</h3>
+      <ul>
+      {
+        props.users.map(user => 
+          <li 
+            onClick={() => {
+              if (props.currentUser !== user) {
+                props.donateSongSlot(props.currentUser, user);
+                // TODO: send notification popup
+                props.close()
+              }
+            }}
+          >
+            <p>{user.name}</p>
+          </li>
+        )
+      }
+      </ul>
+    </ModalShade>
   )
 }
 
@@ -268,8 +302,13 @@ const SongWrapper = props => {
   const slotsToRender = props.songs.map(song =>
     <FilledSongSlot song={song} />
   );
-  for (let i = 0; i < props.songLimit - props.songs.length; i++) {
-    slotsToRender.push(<EmptySongSlot />);
+  for (let i = 0; i < props.slots - props.songs.length; i++) {
+    slotsToRender.push(
+      <EmptySongSlot
+        users={props.users}
+        donateSongSlot={props.donateSongSlot}
+        setDonateUserModal={props.setDonateUserModal}
+    />);
   }
 
   return(
@@ -284,15 +323,24 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      users: fakeData.users,
+      users: [
+        ...fakeData.users.map(user => ({
+          ...user,
+          slots: 0
+        }))
+      ],
+      // Modal/popup triggers
       allUsersVisible: false,
-      addUserModalIsVisible: false
+      addUserModalIsVisible: false,
+      donateSlotModalIsVisible: false,
     }
     // Binding state helper functions
     this.addUser = this.addUser.bind(this);
     this.setCurrentUser = this.setCurrentUser.bind(this);
     this.showAddUserModal = this.showAddUserModal.bind(this);
     this.hideAddUserModal = this.hideAddUserModal.bind(this);
+    this.setDonateUserModal = this.setDonateUserModal.bind(this);
+    this.donateSongSlot = this.donateSongSlot.bind(this);
   }
 
   addUser(newUser){
@@ -328,12 +376,38 @@ class App extends Component {
     });
   }
 
+  setDonateUserModal(isVisible) {
+    this.setState({
+      donateSlotModalIsVisible: isVisible
+    });
+  }
+
+  donateSongSlot(donor, recipient) {
+    const emptySlots = donor.slots - donor.songs.length;
+    if (emptySlots < 1) throw new Error(`${donor.name} doesn't have any more slots to give.`);
+    const updatedDonor = this.state.users.find(user => user === donor);
+    updatedDonor.slots--;
+    const updatedRecipient = this.state.users.find(user => user === recipient);
+    updatedRecipient.slots++;
+    this.setState({
+      updatedDonor,
+      updatedRecipient
+    });
+  }
+
   componentDidMount() {
     // Fake initial data-loading for now
     // Adds new states
+    const songs = 5;
+    this.setState(state => ({
+      users: state.users.map(user => ({
+        ...user,
+        slots: 5
+      }))
+    }));
     this.setState((state, props) => ({
       currentUser: state.users.find( (user) => user.name === 'Michael'),
-      songLimit: 5
+      songLimit: songs,
     }));
   }
 
@@ -391,12 +465,28 @@ class App extends Component {
 
         <h3>Your songs</h3>
         {
-          this.state.currentUser &&
+          this.state.currentUser ?
           <div>
             <strong>Current user: { this.state.currentUser.name }</strong>
-            <h4>{ this.state.currentUser.songs.length }/{ this.state.songLimit } songs added</h4>
-            <SongWrapper songs={ this.state.currentUser.songs } songLimit={ this.state.songLimit } />
-          </div>
+            <h4>{ this.state.currentUser.songs.length }/{ this.state.currentUser.slots ? this.state.currentUser.slots : this.state.songLimit } songs added</h4>
+            <SongWrapper 
+              songs={ this.state.currentUser.songs } 
+              slots={ this.state.currentUser.slots }
+              setDonateUserModal= { this.setDonateUserModal }
+              users={ this.state.users }
+              currentUser = { this.state.currentUser }
+            />
+            {
+              this.state.donateSlotModalIsVisible &&
+              <DonateModal 
+                users={this.state.users}
+                currentUser={this.state.currentUser}
+                donateSongSlot={this.donateSongSlot}
+                close={() => this.setDonateUserModal(false)}
+              />
+            }
+          </div> :
+          <div>Loading...</div>
         }
 
         <hr/>
