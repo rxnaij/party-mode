@@ -3,7 +3,11 @@ import React, { Component, useState, useEffect } from 'react';
 // import 'reset-css';
 import './App.css';
 
+// Components
+//    Screens
 import AddSongs from './AddSongs';
+//    Individual components
+import ModalShade from './components/ModalShade';
 
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -19,7 +23,9 @@ const fakeData = {
       id: 0,
       songs: [
         {
-          title: 'Let it Go',
+          type: 'track',
+          imageURL: '',
+          name: 'Let it Go',
           artist: 'Frozen'
         }
       ]
@@ -29,11 +35,15 @@ const fakeData = {
       id: 1,
       songs: [
         {
-          title: 'Satellite Mind',
+          type: 'track',
+          imageURL: '',
+          name: 'Satellite Mind',
           artist: 'Metric'
         },
         {
-          title: 'Lonely Boy',
+          type: 'track',
+          imageURL: '',
+          name: 'Lonely Boy',
           artist: 'The Black Keys'
         }
       ]
@@ -43,7 +53,9 @@ const fakeData = {
       id: 2,
       songs: [
         {
-          title: "Can't Stop Us",
+          type: 'track',
+          imageURL: '',
+          name: "Can't Stop Us",
           artist: 'Macklemore'
         }
       ]
@@ -53,11 +65,15 @@ const fakeData = {
       id: 3,
       songs: [
         {
-          title: 'i',
+          type: 'track',
+          imageURL: '',
+          name: 'i',
           artist: 'Kendrick Lamar'
         },
         {
-          title: 'Time',
+          type: 'track',
+          imageURL: '',
+          name: 'Time',
           artist: 'Pink Floyd'
         }
       ]
@@ -67,7 +83,9 @@ const fakeData = {
       id: 4,
       songs: [
         {
-          title: 'Take A Chance On Me',
+          type: 'track',
+          imageURL: '',
+          name: 'Take A Chance On Me',
           artist: 'ABBA'
         }
       ]
@@ -77,7 +95,9 @@ const fakeData = {
       id: 5,
       songs: [
         {
-          title: 'Sad Valentine',
+          type: 'track',
+          imageURL: '',
+          name: 'Sad Valentine',
           artist: 'No Vacation'
         }
       ]
@@ -87,7 +107,9 @@ const fakeData = {
       id: 6,
       songs: [
         {
-          title: 'Seoul Town Road',
+          type: 'track',
+          imageURL: '',
+          name: 'Seoul Town Road',
           artist: 'BTS'
         }
       ]
@@ -97,7 +119,9 @@ const fakeData = {
       id: 7,
       songs: [
         {
-          title: 'Kids',
+          type: 'track',
+          imageURL: '',
+          name: 'Kids',
           artist: 'MGMT'
         }
       ]
@@ -107,11 +131,15 @@ const fakeData = {
       id: 8,
       songs: [
         {
-          title: 'La vie en rose',
+          type: 'track',
+          imageURL: '',
+          name: 'La vie en rose',
           artist: 'Louie Armstrong'
         },
         {
-          title: 'Sin Triangle',
+          type: 'track',
+          imageURL: '',
+          name: 'Sin Triangle',
           artist: 'Sidney Gish'
         }
       ]
@@ -121,7 +149,9 @@ const fakeData = {
       id: 9,
       songs: [
         {
-          title: "Friday I'm In Love",
+          type: 'track',
+          imageURL: '',
+          name: "Friday I'm In Love",
           artist: 'Janet Devlin'
         }
       ]
@@ -165,47 +195,6 @@ const Profile = props => {
       onClick={() => props.setAsCurrentUser()}
     >
       {props.user.name}: {props.user.songs.length}
-    </div>
-  )
-};
-
-/* 
- * Higher-order styling component for Modal components.
- * Closes modal when area outside of modal is clicked.
- * props:
- * close(): deactivates Modal in parent component
- */ 
-const ModalShade = props => {
-  const backgroundStyle = {
-    zIndex: 1,
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
-    backgroundColor: 'hsla(0,0%,0%,50%)'
-  }
-
-  const modalStyle={
-    zIndex: 2,
-    display: 'inline-block',
-    margin: '0 auto',
-    padding: '2rem',
-    backgroundColor: 'white'
-  }
-
-  return(
-    <div 
-      style={ backgroundStyle }
-      onClick={ event => {
-        event.target === event.currentTarget && props.close()
-      }}
-    >
-      <div 
-        style={ modalStyle }
-      >
-        { props.children }
-      </div>
     </div>
   )
 };
@@ -276,7 +265,7 @@ const FilledSongSlot = props => {
     <SongSlot>
       <input type="checkbox" name="" id="" style={ inlineBlockStyle } />
       <div style={ inlineBlockStyle }>
-        <h5>{props.song.title}</h5>
+        <h5>{props.song.name}</h5>
         <h6>{props.song.artist}</h6>
       </div>
       <button>Preview</button>
@@ -364,8 +353,8 @@ const SongWrapper = props => {
      Then EmptySongSlots are added to the array until 
      the array's length becomes equal to songLimit. 
   */
-  const slotsToRender = props.songs.map(song =>
-    <FilledSongSlot key={`filledslot-${song.title}`} song={song} />
+  const slotsToRender = props.songs.map((song, i) =>
+    <FilledSongSlot key={`filledslot-${song.name}-${i}`} song={song} />
   );
   for (let i = 0; i < props.slots - props.songs.length; i++) {
     slotsToRender.push(
@@ -398,11 +387,31 @@ class App extends Component {
       donateSlotModalIsVisible: false,
     }
     // Binding state helper functions
+    this.checkForExistingSongOwner = this.checkForExistingSongOwner.bind(this);
     this.addUser = this.addUser.bind(this);
     this.setCurrentUser = this.setCurrentUser.bind(this);
     this.setAddUserModal = this.setAddUserModal.bind(this);
+    this.addSong = this.addSong.bind(this);
     this.setDonateSlotModal = this.setDonateSlotModal.bind(this);
     this.donateSongSlot = this.donateSongSlot.bind(this);
+  }
+
+  /*
+   * Helper method that finds whether a song exists inside
+   * a given user's songs[] property
+   * 
+   * Returns the matching user (if it exists)
+   */ 
+  checkForExistingSongOwner(song) {
+    const { name, artist } = song // only extracts name and type because those are the only
+                                  // truly necessary properties--songs that share the
+                                  // same name can usually be differentiated by their artist.
+    return this.state.users.find(user =>
+      user.songs.find(currentTrack => 
+        currentTrack.name === name &&
+        currentTrack.artist === artist
+      )
+    ) || null
   }
 
   /*
@@ -438,9 +447,9 @@ class App extends Component {
   }
 
   /*
-  * Adds or removes AddUserModal
-  * isVisible: whether AddUserModal is active
-  */ 
+   * Adds or removes AddUserModal
+   * isVisible: whether AddUserModal is active
+   */ 
   setAddUserModal(isVisible) {
     this.setState({
       addUserModalIsVisible: isVisible
@@ -448,9 +457,28 @@ class App extends Component {
   }
 
   /*
-  * Adds or removes DonateSlotModal
-  * isVisible: whether setDonateSlotModal is active
-  */ 
+   * Adds a song to the current user's slots.
+   * song: song to be added
+   */
+  addSong(song) {
+    if (this.state.songLimit > this.state.currentUser.songs.length) {
+      const updatedSongs = this.state.currentUser.songs;
+      updatedSongs.push(song)
+      this.setState((state) => ({
+        currentUser: {
+          ...state.currentUser,
+          songs: updatedSongs
+        }
+      }));
+    } else {
+      throw new Error(`You've already reached the limit of ${this.state.songLimit} songs. You'll need to receive a song slot donation from another user in order to add more songs.`)
+    }
+  }
+
+  /*
+   * Adds or removes DonateSlotModal
+   * isVisible: whether setDonateSlotModal is active
+   */ 
   setDonateSlotModal(isVisible) {
     this.setState({
       donateSlotModalIsVisible: isVisible
@@ -474,6 +502,14 @@ class App extends Component {
       updatedDonor,
       updatedRecipient
     });
+  }
+
+  // Grouping callbacks
+  addSongCallbacks() {
+    return {
+      addSong: this.addSong,
+      checkForExistingSongOwner: this.checkForExistingSongOwner
+    }
   }
 
   componentDidMount() {
@@ -528,7 +564,7 @@ class App extends Component {
           <Profile 
             user={allUsers}
             currentUser={this.state.currentUser}
-            setCurrentUser={this.setCurrentUser}
+            setAsCurrentUser={this.setCurrentUser}
           />
           {
             this.state.users.slice(0, usersToRender).map(user =>
@@ -576,7 +612,10 @@ class App extends Component {
         }
 
         <hr/>
-        <AddSongs />
+        <AddSongs
+          currentUser={this.state.currentUser}
+          addSongCallbacks={this.addSongCallbacks()}
+        />
 
       </div> // End .App
     );
