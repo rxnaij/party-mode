@@ -12,8 +12,8 @@ import ModalShade from './components/ModalShade';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCheckSquare, faPlus, faHands, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons'
-library.add(faCheckSquare, faPlus, faHands, faTimes, faSearch )
+import { faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic } from '@fortawesome/free-solid-svg-icons'
+library.add(faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic);
 
 // Fake server data
 const fakeData = {
@@ -159,11 +159,6 @@ const fakeData = {
   ]
 }
 
-const inlineBlockStyle = {
-  display: 'inline-block',
-  marginRight: '1rem'
-};
-
 /*
  * Displays total count of a given value
  * props:
@@ -172,7 +167,7 @@ const inlineBlockStyle = {
  */ 
 const TotalCounter = props => {
 
-  const { name, value } = props;
+  const { name, icon, value } = props;
 
   const style = {
     display: 'inline-block',
@@ -180,7 +175,10 @@ const TotalCounter = props => {
   }
   return (
     <div style={style}>
-      {`Total ${name}: ${value}`}
+      {
+        icon ? <FontAwesomeIcon icon={icon} style={{marginRight: '0.25rem'}} /> : `Total ${name}:`
+      }
+      {value}
     </div>
   );
 };
@@ -196,7 +194,7 @@ const Profile = props => {
   const { user, isCurrentUser, setAsCurrentUser } = props;
 
   const profileStyle = {
-    paddingBottom: '1rem',
+    paddingBottom: '0.5rem',
 
     textAlign: 'center',
     fontSize: '0.75rem',
@@ -218,6 +216,7 @@ const Profile = props => {
     marginBottom: '0.25rem',
 
     backgroundColor: isCurrentUser ? '#A1FFCF' : 'lightgray',
+    color: 'black',
 
     display: 'flex',
     justifyContent: 'center',
@@ -253,6 +252,7 @@ const ProfileRow = props => {
   const profileRowStyle = {
     display: 'flex',
     justifyContent: 'space-between',
+
     marginBottom: '1rem'
   }
   
@@ -321,14 +321,23 @@ const AddNewUserModal = props => {
  */
 const SongSlot = props => {
   const songSlotStyle = {
-    border: '1px solid black',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+
+    border: '2px solid gray',
     borderRadius: '8px',
-    maxWidth: '70%',
-    margin: '0 auto'
+
+    maxWidth: '720px',
+    minHeight: '60px',
+    margin: '0 auto',
+    marginBottom: '0.5rem',
+
+    padding: '0.75rem 1rem'
   };
 
   return(
-    <div style={songSlotStyle}>
+    <div style={{...songSlotStyle, ...props.style}}>
       {props.children}
     </div>
   );
@@ -343,17 +352,39 @@ const FilledSongSlot = props => {
   const { song } = props;
 
   const filledSongSlotStyle = {
-    fontSize: '0.9rem'
+    fontSize: '0.9rem',
+    border: '0px',
+
+    color: 'white',
+    backgroundImage: 'linear-gradient(to right top, #207155, #1c9068, #14b07a, #08d18c, #00f39d)'
   }
 
   return(
     <SongSlot style={filledSongSlotStyle}>
-      <input type="checkbox" name="" id="" style={inlineBlockStyle} />
-      <div style={inlineBlockStyle}>
-        <h5 style={{ fontWeight: 'bold' }}>{song.name}</h5>
+      <div>
+        <input type="checkbox" name="" className="song-checkbox" id="" />
+      </div>
+      
+      <div
+        style={{
+          flexGrow: '2',
+          paddingLeft: '1.25rem'
+        }}
+      >
+        <h5 
+          style={{
+            fontWeight: 'bold',
+            marginBottom: '0.25rem'
+          }}
+        >
+          {song.name}
+        </h5>
         <h6>{song.artist}</h6>
       </div>
-      <button>Preview</button>
+      <div>
+       <FontAwesomeIcon icon="play-circle" />
+      </div>
+      
     </SongSlot>
   )
 };
@@ -369,17 +400,23 @@ const EmptySongSlot = props => {
 
   const { openModal, moveToAddSongsScreen } = props;
 
+  const emptySongSlotStyle = {
+    border: '2px solid gray',
+
+    boxShadow: 'inset 0px 4px 8px hsla(0, 0%, 0%, 0.35)'
+  }
+
   return(
-    <SongSlot>
+    <SongSlot
+      style={emptySongSlotStyle}
+    >
       <button 
-        style={ inlineBlockStyle }
         onClick={() => moveToAddSongsScreen()}
       >
         <FontAwesomeIcon icon={faPlus} />
         <span>Add song</span>
       </button>
       <button 
-        style={ inlineBlockStyle }
         onClick={() => openModal()}
       >
         <FontAwesomeIcon icon={faHands} />
@@ -706,15 +743,16 @@ export default class App extends Component {
       name: 'All',
       id: -1,
       songs: this.state.users.reduce( (list, user) => list.concat(user.songs), []), // Translation: "Turn data.users into a list, and for each user, append their collection of songs to the list."
-      slots: this.state.songLimit * this.state.users.length
+      slots: this.state.users ? this.state.songLimit * this.state.users.length : 0
     }
 
     const profilesToRender = () => {
 
       let renderResult = [];
 
-      let userList = [...this.state.users];
-      userList.unshift(allUsers);
+      let currentUser = this.state.currentUser;
+      let userList = [...this.state.users.filter(user => user !== currentUser)];
+      userList.unshift(allUsers, currentUser);
 
       for (let i = 0; i < userList.length; i++) {
 
@@ -725,6 +763,8 @@ export default class App extends Component {
           for (let j = i; j < i + 5 && j < userList.length; j++) {
 
             const user = userList[j]
+
+            console.log(user)
 
             row.push(user);
 
@@ -774,6 +814,8 @@ export default class App extends Component {
       this.state.currentScreen === 'App' ?
       (
         <div className="App">
+
+          <div className="section-divider"></div>
           
           <h1>Richard's Party Playlist</h1>
           <h2>Add Songs</h2>
@@ -781,16 +823,38 @@ export default class App extends Component {
             display: 'flex',
             justifyContent: 'center'
           }}>
-            <TotalCounter name="Users" value={totalUsers} />
-            <TotalCounter name="Songs" value={totalSongs} />
+            <TotalCounter 
+              name="Users" 
+              icon="user"
+              value={totalUsers} 
+            />
+            <TotalCounter 
+              name="Songs" 
+              icon="music"
+              value={totalSongs} 
+            />
           </div>
 
+          <div className="section-divider"></div>
+
           <section id="profiles">
-            <h3>Adding songs as: </h3>
-            <button onClick={ () => this.toggleAllUsersList() }>
-              { this.state.allUsersVisible ? 'Show less' : 'Show all' }
-            </button>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              <h3>Adding songs as: </h3>
+              <FontAwesomeIcon
+                style={{ cursor: 'pointer' }}
+                onClick={ () => this.toggleAllUsersList() }
+                icon={
+                  this.state.allUsersVisible ? "angle-up" : "angle-down"
+                }
+              />
+            </div>
             {
+              this.state.currentUser && 
               profilesToRender().slice(0, rowsToRender).map((row, i) => 
                 <ProfileRow 
                   key={`profile-row-${i}`}
@@ -813,6 +877,8 @@ export default class App extends Component {
             }
           </section>
 
+          <div className="section-divider"></div>
+
           <section id="your-songs">
             <h3>Your songs</h3>
             {
@@ -823,7 +889,8 @@ export default class App extends Component {
                   { 
                     this.state.currentUser.songs.length }/{ 
                       this.state.currentUser.slots || this.state.songLimit 
-                  } songs added</h4>
+                  } songs added
+                </h4>
                 <SongWrapper 
                   songs={this.state.currentUser.songs} 
                   slots={this.state.currentUser.slots}
