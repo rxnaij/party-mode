@@ -10,7 +10,7 @@ import React from 'react'
 export default function ModalShade (props) {
   const backgroundStyle = {
     zIndex: 1,
-    position: 'absolute',
+    position: 'fixed',
     top: 0,
     bottom: 0,
     right: 0,
@@ -20,10 +20,13 @@ export default function ModalShade (props) {
 
   const modalStyle={
     zIndex: 2,
-    display: 'inline-block',
+
+    position: 'fixed',
+    top: '8rem',
     margin: '0 auto',
     padding: '2rem',
-    backgroundColor: 'white'
+    
+    backgroundColor: 'inherit'
   }
 
   return(

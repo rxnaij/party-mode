@@ -449,6 +449,17 @@ const DonateSlotModal = props => {
           users.map(user => 
             <li 
               key={`donate-to-${user.id}`}
+              style={{
+                maxWidth: '10rem',
+                margin: '0 auto',
+                marginBottom: '0.5rem',
+
+                borderRadius: '1rem',
+                backgroundColor: 'hsla(149, 37%, 100%, 0.5)',
+
+                textAlign: 'center',
+                lineHeight: '2.5rem'
+              }}
               onClick={() => {
                 if (currentUser !== user) {
 

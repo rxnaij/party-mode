@@ -79,12 +79,39 @@ const DuplicateSongModal = props => {
 const SearchBox = props => {
   return(
     <div>
-      <FontAwesomeIcon icon="search" />
-      <label htmlFor="songSearch">Search for a song: </label>
-      <input type="search" name="songSearch" id="songSearch" onChange={props.handleSearchInputChange}/>
-      <button onClick={ () =>  document.getElementById('songSearch').value = ''}>
-        <FontAwesomeIcon icon="times" /> Clear search
-      </button>
+      <div>
+        <FontAwesomeIcon icon="search" />
+        <label htmlFor="songSearch">Search for a song: </label>
+      </div>
+      <div>
+        <div style={{
+          position: 'relative'
+        }}>
+          <input
+            type="search"
+            name="songSearch"
+            id="songSearch"
+            style={{
+              position: 'relative',
+              display: 'inline-block',
+              width: '100%'
+            }}
+            onChange={props.handleSearchInputChange}
+          />
+          <FontAwesomeIcon
+            icon="times" 
+            style={{
+              zIndex: 1,
+              position: 'absolute',
+              right: 0,
+
+              color: '#000000'
+            }}
+            onClick={ () =>  document.getElementById('songSearch').value = ''}
+          />
+        </div>
+      </div>
+      
     </div>
   )
 }
@@ -288,32 +315,59 @@ export default function AddSongsScreen (props) {
 
   return(
     <div>
-      <nav>
-        <FontAwesomeIcon 
-          icon="times" 
-          onClick={() => backToApp()}
-        />
-        <h1 style={{ // Change this to flex justify-around
-          display: 'inline-block', 
-          marginLeft: '1rem'
-        }}>
-          Add song
-        </h1>
+
+      <div className="section-divider"></div>
+
+      <nav style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}>
+        <div
+          style={{
+            display: 'inherit',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '2rem'
+          }}
+        >
+          <FontAwesomeIcon 
+            icon="times" 
+            onClick={() => backToApp()}
+          />
+          <h1 style={{ // Change this to flex justify-around
+            display: 'inline-block', 
+            marginLeft: '1rem'
+          }}>
+            Add song
+          </h1>
+        </div>
+        
         <SearchBox handleSearchInputChange={handleSearchInputChange} />
-        {
-          searchQuery ? (
-              <SearchResultsGroup
-                query={searchQuery}
-                searchResults={searchResults}
-                addSongCallbacks={props.addSongCallbacks}
-                openDuplicateModal={() => this.setDuplicateSongModal(true)}
-              />
-            ) : (
-              <p>Play what you love: search for artists, songs, podcasts, and more.</p>
-          )
-        }
         
       </nav>
+
+      <div className="section-divider"></div>
+
+      <div>
+        {
+          searchQuery ? (
+            <SearchResultsGroup
+              query={searchQuery}
+              searchResults={searchResults}
+              addSongCallbacks={props.addSongCallbacks}
+              openDuplicateModal={() => this.setDuplicateSongModal(true)}
+            />
+          ) : (
+            <div style={{
+              margin: '0 auto',
+              textAlign: 'center'
+            }}>
+              Play what you love: search for artists, songs, podcasts, and more.
+            </div>
+          )
+        }
+      </div>
     </div>
   );
 };
