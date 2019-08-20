@@ -52,7 +52,8 @@ const fakeData = {
 }
 
 /*
- *
+ * TODO: replace this with an imported modal or something that's
+ * more refined. Thinking about the logic from scratch is a waste!
  * props:
  * user: user
  * close(): removes modal from parent component
@@ -61,9 +62,16 @@ const DuplicateSongModal = props => {
   return(
     <ModalShade close={props.close}>
       <h4>Duplicate song</h4>
-      <h3>{props.user.name} already added this song. Add it anyway?</h3>
-      <button onClick={() => {props.close()}}>Yes, I love it that much!</button>
-      <button onClick={() => props.close()}>No, that would be awkward.</button>
+      <h3>{props.user.name} has already added this song. Add it anyway?</h3>
+      <button onClick={() => props.close()}>
+        Yes, I love it that much!
+      </button>
+      <button onClick={() => {
+        props.rejectSong();
+        props.close();
+      }}>
+        No, that would be awkward.
+      </button>
     </ModalShade>
   )
 }
@@ -138,11 +146,10 @@ const SearchResult = props => {
  */
 const TrackSearchResult = props => {
   const [isAdded, setIsAdded] = useState(false);
-  const [isDuplicate, setIsDuplicate] = useState(
-    !!props.addSongCallbacks.checkForExistingSongOwner(props.item)
-  );
-  const [duplicateOwner, setDuplicateOwner] = useState(props.addSongCallbacks.checkForExistingSongOwner(props.item))
+  const [willAdd, setWillAdd] = useState(true);
   const [duplicateSongModalIsVisible, setDuplicateSongModal] = useState(false);
+  
+  const duplicateOwner = props.addSongCallbacks.checkForExistingSongOwner(props.item);
 
   const addButtonStyle_notAdded = {
     width: '2rem',
@@ -170,11 +177,16 @@ const TrackSearchResult = props => {
         style={isAdded ? addButtonStyle_added : addButtonStyle_notAdded}
         onClick={() => {
           if (!isAdded) {
-            if (isDuplicate) {
-              setDuplicateSongModal(true)
+
+            if (duplicateOwner) {
+              setDuplicateSongModal(true);
             }
-            props.addSongCallbacks.addSong(props.item);
-            setIsAdded(true);
+
+            if (willAdd) {
+              props.addSongCallbacks.addSong(props.item);
+              setIsAdded(true);
+            }
+
           }
         }}
       >
@@ -184,6 +196,7 @@ const TrackSearchResult = props => {
         duplicateSongModalIsVisible &&
         <DuplicateSongModal
           user={duplicateOwner}
+          rejectSong={() => setWillAdd(false)}
           close={() => setDuplicateSongModal(false)}
         />
       }

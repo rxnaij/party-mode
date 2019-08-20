@@ -475,6 +475,10 @@ class App extends Component {
     }
   }
 
+  removeSong() {
+    
+  }
+
   /*
    * Adds or removes DonateSlotModal
    * isVisible: whether setDonateSlotModal is active
