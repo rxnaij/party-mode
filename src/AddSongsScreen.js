@@ -262,11 +262,11 @@ const SearchResultsGroup = props => {
  *    addSong(): adds song to current user in parent
  *    checkForExistingSongOwner(): checks if a song is already owned by a user in parent
  */ 
-export default function AddSongs(props) {
+export default function AddSongsScreen (props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState(fakeData.searchResults);
   // Prop methods from parent app
-  const { addSong, checkForExistingSongOwner } = props.addSongCallbacks;
+  const { backToApp, addSong, checkForExistingSongOwner } = props.addSongCallbacks;
 
   const handleSearchInputChange = event => {
     const { value } = event.target;
@@ -289,7 +289,10 @@ export default function AddSongs(props) {
   return(
     <div>
       <nav>
-        <FontAwesomeIcon icon="times" />
+        <FontAwesomeIcon 
+          icon="times" 
+          onClick={() => backToApp()}
+        />
         <h1 style={{ // Change this to flex justify-around
           display: 'inline-block', 
           marginLeft: '1rem'

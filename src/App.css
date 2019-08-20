@@ -1,3 +1,37 @@
-.App {
+html, body {
+  font-family: 'Avenir Next', Avenir, Arial, Helvetica, sans-serif;
+  /* background-color: #323232;
+  color: #ffffff; */
+}
+
+body {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+h1, h2 {
   text-align: center;
+}
+
+h1 {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-kerning: 0.8;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: lighter;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-top: 3rem;
+}
+
+.App {
+  
 }
