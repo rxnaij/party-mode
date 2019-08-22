@@ -8,6 +8,7 @@ import './App.css';
 import AddSongsScreen from './AddSongsScreen';
 //    Individual components
 import ModalShade from './components/ModalShade';
+import Tooltip from './components/Tooltip';
 
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -169,16 +170,39 @@ const TotalCounter = props => {
 
   const { name, icon, value } = props;
 
+  const [tooltipIsVisible, setTooltip] = useState(false);
+
   const style = {
     display: 'inline-block',
-    marginRight: '1rem'
+    marginRight: '1rem',
   }
+
+  const selected = {
+    backgroundColor: 'gray'
+  }
+
   return (
     <div style={style}>
-      {
-        icon ? <FontAwesomeIcon icon={icon} style={{marginRight: '0.25rem'}} /> : `Total ${name}:`
-      }
-      {value}
+      <div style={tooltipIsVisible ? selected : null}>
+        {
+          icon
+            ? <FontAwesomeIcon 
+                icon={icon} 
+                style={{marginRight: '0.25rem'}} 
+                onClick={() => setTooltip(!tooltipIsVisible)}
+              /> 
+            : `Total ${name}:`
+        }
+        {value}
+      </div>
+      <div style={{position: 'relative'}}>
+        {
+          tooltipIsVisible &&
+          <Tooltip close={() => setTooltip(false)}>
+            Total {name} in this playlist
+          </Tooltip>
+        }
+      </div>
     </div>
   );
 };
