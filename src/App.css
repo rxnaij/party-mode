@@ -42,6 +42,15 @@ h4 {
   font-weight: bold;
 }
 
+h5 {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+h6 {
+  
+}
+
 strong {
   line-height: 1.2rem;
 }

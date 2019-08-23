@@ -395,14 +395,7 @@ const FilledSongSlot = props => {
           paddingLeft: '1.25rem'
         }}
       >
-        <h5 
-          style={{
-            fontWeight: 'bold',
-            marginBottom: '0.25rem'
-          }}
-        >
-          {song.name}
-        </h5>
+        <h5>{song.name}</h5>
         <h6>{song.artist}</h6>
       </div>
       <div>
@@ -560,6 +553,9 @@ export default class App extends Component {
           slots: 0
         }))
       ],
+
+      /* Login check (temporary placeholder) */
+      accessToken: null,
 
       /* Screen visibility triggers */
 
@@ -761,6 +757,10 @@ export default class App extends Component {
       songLimit: songs,
     }));
 
+    this.setState({
+      accessToken: new URLSearchParams(window.location.search).get('access_token') || null
+    });
+
   }
 
   render(){
@@ -842,12 +842,8 @@ export default class App extends Component {
     const rowsToRender = this.state.allUsersVisible ? profilesToRender().length : 1
 
     return (
-
-      /* Note: The screen routing that follows is going to suck. I apologize in advance,
-       * but maintain that this is simply a prototype and not a production app.
-       */
-      this.state.currentScreen === 'App' ?
-      (
+      this.state.accessToken ? (
+        this.state.currentScreen === 'App' ? (
         <div className="App">
 
           <div className="section-divider"></div>
@@ -948,12 +944,28 @@ export default class App extends Component {
 
           
         </div> // End .App
-     ) : (
-      <AddSongsScreen
-        currentUser={this.state.currentUser}
-        addSongCallbacks={this.addSongCallbacks()}
-      />
-     )
+      ) : (
+        <AddSongsScreen
+          accessToken={this.state.accessToken}
+          addSongCallbacks={this.addSongCallbacks()}
+        />
+      )
+      ) : (
+        <button 
+          onClick={ () => {
+            window.location = window.location.href.includes('localhost') 
+            ? 'http://localhost:8888/login'
+            : 'https://rxnaij-playlists-backend.herokuapp.com/login'
+          }}
+          style={{}}>
+            Sign in with Spotify
+        </button>
+      )
+
+      /* Note: The screen routing that follows is going to suck. I apologize in advance,
+       * but maintain that this is simply a prototype and not a production app.
+       */
+      
     )
   }
 }

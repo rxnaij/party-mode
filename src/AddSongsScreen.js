@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import SpotifyWebApi from 'spotify-web-api-js';
+
 import ModalShade from './components/ModalShade';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -77,42 +79,48 @@ const DuplicateSongModal = props => {
 }
 
 const SearchBox = props => {
+
+  const { handleSearchInputChange } = props;
+
+  const searchInputStyle = {
+    position: 'relative',
+    display: 'inline-block',
+    width: '100%'
+  }
+
+  const inputClearStyle = {
+    zIndex: 1,
+    position: 'absolute',
+    right: '0.25rem',
+    top: '0.25rem',
+
+    color: '#000000'
+  }
+
   return(
     <div>
       <div>
         <FontAwesomeIcon icon="search" />
         <label htmlFor="songSearch">Search for a song: </label>
       </div>
-      <div>
-        <div style={{
-          position: 'relative'
-        }}>
-          <input
-            type="search"
-            name="songSearch"
-            id="songSearch"
-            style={{
-              position: 'relative',
-              display: 'inline-block',
-              width: '100%'
-            }}
-            onChange={props.handleSearchInputChange}
-          />
-          <FontAwesomeIcon
-            icon="times" 
-            style={{
-              zIndex: 1,
-              position: 'absolute',
-              right: 0,
-
-              color: '#000000'
-            }}
-            onClick={ () =>  document.getElementById('songSearch').value = ''}
-          />
-        </div>
+      <div style={{
+        position: 'relative'
+      }}>
+        <input
+          type="search"
+          name="songSearch"
+          id="songSearch"
+          style={searchInputStyle}
+          onChange={handleSearchInputChange}
+        />
+        <FontAwesomeIcon
+          icon="times" 
+          style={inputClearStyle}
+          onClick={ () =>  document.getElementById('songSearch').value = ''}
+        />
       </div>
-      
     </div>
+      
   )
 }
 
@@ -122,22 +130,28 @@ const SearchBox = props => {
  * item: search result item to display in this search result
  */ 
 const SearchResult = props => {
+  const { item, action } = props;
+
   const style = {
-    border: '1px solid black',
+    // border: '1px solid black',
     maxWidth: '720px',
-    margin: '0 auto'
+    margin: '0 auto',
+
+    fontSize: '0.9rem',
   };
 
   const flexContainer = {
     display: 'flex',
-    justifyContent: 'space-evenly',
-    alignItems: 'center'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+
+    marginBottom: '0.5rem',
   }
 
   const fakeImg = {
     backgroundColor: 'gray',
-    width: '4rem',
-    height: '4rem',
+    width: '3rem',
+    height: '3rem',
     borderRadius: '4px',
     boxShadow: '0px 4px 8px hsla(0,0%,0%,0.3)',
   };
@@ -145,14 +159,19 @@ const SearchResult = props => {
   return(
     <div style={{...style, ...flexContainer, ...props.style}}>
       <div style={fakeImg}></div>
-      <div id="track-title-and-type" style={{flexDirection: 'column'}}>
-        <h5>{props.item.name}</h5>
+      <div id="track-title-and-type" style={{
+        flexDirection: 'column',
+        flexGrow: 2,
+
+        paddingLeft: '1.25rem'
+      }}>
+        <h5>{item.name}</h5>
         <h6>
           {
-            props.item.type + (
-              props.item.type === 'artist'
+            item.type + (
+              item.type === 'artist'
                 ? ''
-                : ' by ' + props.item.artist
+                : ' by ' + item.artist
             )
           }
         </h6>
@@ -198,7 +217,10 @@ const TrackSearchResult = props => {
   }
 
   return(
-    <SearchResult item={props.item} style={ isAdded && wasAddedStyle }>
+    <SearchResult 
+      item={props.item} 
+      style={ isAdded && wasAddedStyle }
+    >
       <div
         className="TrackSearchResult"
         style={isAdded ? addButtonStyle_added : addButtonStyle_notAdded}
@@ -293,7 +315,9 @@ export default function AddSongsScreen (props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState(fakeData.searchResults);
   // Prop methods from parent app
+  //eslint-disable-next-line
   const { backToApp, addSong, checkForExistingSongOwner } = props.addSongCallbacks;
+  const { accessToken } = props;
 
   const handleSearchInputChange = event => {
     const { value } = event.target;
@@ -307,10 +331,25 @@ export default function AddSongsScreen (props) {
   const fetchSearchResultsFromQuery = async (query) => {
     // const searchResults = await query => (ping Spotify API for search results)
     // setSearchResults();
+
+    const testQuery = 'q=' + 'hey+jude' + '&'
+    const testType = 'type=' + 'track'
+    const endpoint = 'https://api.spotify.com/v1/search'
+    const searchQuery = endpoint + '?' + testQuery + testType
+
+    console.log(searchQuery)
+
+    const response = await fetch(searchQuery, {
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    });
+    const data = await response.json()
+    
+    
   };
 
   useEffect(() => {
     // setSearchResults(searchQuery)  handles some kind of dynamic search filtering by query
+    fetchSearchResultsFromQuery('')
   }, [searchQuery]);
 
   return(
@@ -321,7 +360,6 @@ export default function AddSongsScreen (props) {
       <nav style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
       }}>
         <div
           style={{
