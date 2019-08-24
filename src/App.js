@@ -13,8 +13,8 @@ import Tooltip from './components/Tooltip';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic } from '@fortawesome/free-solid-svg-icons'
-library.add(faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic);
+import { faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+library.add(faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic, faChevronRight);
 
 // Fake server data
 const fakeData = {
@@ -764,8 +764,6 @@ export default class App extends Component {
   }
 
   render(){
-    // Data check (for debugging)
-    this.state.currentUser && console.log(this.state.currentUser);
 
     // Total stats of all users
     const totalUsers = this.state.users.length;
@@ -797,9 +795,7 @@ export default class App extends Component {
 
           for (let j = i; j < i + 5 && j < userList.length; j++) {
 
-            const user = userList[j]
-
-            console.log(user)
+            const user = userList[j];
 
             row.push(user);
 
@@ -841,7 +837,10 @@ export default class App extends Component {
     // User components to render
     const rowsToRender = this.state.allUsersVisible ? profilesToRender().length : 1
 
+
+
     return (
+
       this.state.accessToken ? (
         this.state.currentScreen === 'App' ? (
         <div className="App">

@@ -80,7 +80,7 @@ const DuplicateSongModal = props => {
 
 const SearchBox = props => {
 
-  const { handleSearchInputChange } = props;
+  const { handleSearchInputChange, clearInput } = props;
 
   const searchInputStyle = {
     position: 'relative',
@@ -116,7 +116,7 @@ const SearchBox = props => {
         <FontAwesomeIcon
           icon="times" 
           style={inputClearStyle}
-          onClick={ () =>  document.getElementById('songSearch').value = ''}
+          onClick={ () => clearInput()}
         />
       </div>
     </div>
@@ -169,9 +169,11 @@ const SearchResult = props => {
         <h6>
           {
             item.type + (
-              item.type === 'artist'
-                ? ''
-                : ' by ' + item.artist
+              item.type !== 'artist'
+                ? ' by ' + item.artists.reduce((artistList, artist) => 
+                            artistList.concat(artist.name)
+                            , []).join(', ')
+                : ''
             )
           }
         </h6>
@@ -191,21 +193,28 @@ const SearchResult = props => {
  * addSongCallbacks()
  */
 const TrackSearchResult = props => {
+
+  const { item, addSongCallbacks } = props;
+
   const [isAdded, setIsAdded] = useState(false);
   const [willAdd, setWillAdd] = useState(true);
   const [duplicateSongModalIsVisible, setDuplicateSongModal] = useState(false);
   
-  const duplicateOwner = props.addSongCallbacks.checkForExistingSongOwner(props.item);
+  const duplicateOwner = addSongCallbacks.checkForExistingSongOwner(item);
 
   const addButtonStyle_notAdded = {
     width: '2rem',
     height: '2rem',
     borderRadius: '50%',
-    backgroundColor: 'green',
+
+    border: '2px solid white',
+
+    backgroundColor: 'transparent',
+    color: 'white',
+
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    color: 'white'
   }
   const addButtonStyle_added = {
     ...addButtonStyle_notAdded,
@@ -218,7 +227,7 @@ const TrackSearchResult = props => {
 
   return(
     <SearchResult 
-      item={props.item} 
+      item={item} 
       style={ isAdded && wasAddedStyle }
     >
       <div
@@ -232,7 +241,7 @@ const TrackSearchResult = props => {
             }
 
             if (willAdd) {
-              props.addSongCallbacks.addSong(props.item);
+              addSongCallbacks.addSong(item);
               setIsAdded(true);
             }
 
@@ -254,8 +263,19 @@ const TrackSearchResult = props => {
 };
 
 // TODOs:
-// eslint-disable-next-line
-const AlbumSearchResult = () => {}
+const AlbumSearchResult = props => {
+  const { item } = props
+
+  return(
+    <SearchResult
+      item={item}
+    >
+      <div>
+        <FontAwesomeIcon icon="chevron-right" />
+      </div>
+    </SearchResult>
+  )
+}
 // eslint-disable-next-line
 const ArtistSearchResult = () => {}
 
@@ -263,42 +283,65 @@ const ArtistSearchResult = () => {}
  *
  * props:
  * users: list of users in parent
- * query: search query entered into 
  * searchResults: list of search results from query
  * addSong(): adds track to current user's song list
  * openDuplicateModal(): triggers popup asking if duplicate song is OK
  */ 
 const SearchResultsGroup = props => {
+
+  const { searchResults, addSongCallbacks } = props;
+
   return (
-    <div>
-      {
-        props.query ? (
-          props.searchResults.map((result, i) => {
-            const key = `search-result-${i}`;
-            if (result.type === 'track')
-              return (
-                <TrackSearchResult
-                  key={key}
-                  item={result} 
-                  addSongCallbacks={props.addSongCallbacks}
-                />
-              )
-            else
-              return(
-                <SearchResult 
-                  key={key}
-                  item={result} 
-                />
-              )
-            })
-            // differentiate by track, album, artist results
+    searchResults ? (
+      <div>
+        <h3>Tracks</h3>
+        {
+          searchResults.tracks.items.length > 0 ? (
+            searchResults.tracks.items.slice(0,4).map(track => 
+              <TrackSearchResult
+                key={track.id}
+                item={track}
+                addSongCallbacks={addSongCallbacks}
+              />
+            )
           ) : (
-          <div>
-            <p>Search for a song, artist, album, etc.</p>
-          </div>
-        )
-      }
-    </div>
+            <div>
+              No results for tracks
+            </div>
+          )
+        }
+        <h3>Albums</h3>
+        {
+          searchResults.albums.items.length > 0 ? (
+            searchResults.albums.items.slice(0,4).map(album =>
+              <AlbumSearchResult
+                key={album.id}
+                item={album}
+              />
+            )
+          ) : (
+            <div>No results for albums</div>
+          )
+        }
+        <h3>Artists</h3>
+        {
+          searchResults.artists.items.length > 0 ? (
+            searchResults.artists.items.slice(0,4).map(artist =>
+              <SearchResult 
+                key={artist.id}
+                item={artist}
+              />
+            )
+          ) : (
+            <div>No results for artists</div>
+          )
+        }
+      </div>
+    ) : (
+      <div>
+        <p>Start typing above to search for your favorite tracks, albums, and artists.</p>
+      </div>
+    )
   );
 }
 
@@ -308,49 +351,71 @@ const SearchResultsGroup = props => {
  * props:
  * currentUser: current user specified in parent component (App)
  * addSongCallBacks:
+ *    backToApp(): return to App page
  *    addSong(): adds song to current user in parent
  *    checkForExistingSongOwner(): checks if a song is already owned by a user in parent
  */ 
 export default function AddSongsScreen (props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(fakeData.searchResults);
+  const [searchData, setSearchData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   // Prop methods from parent app
   //eslint-disable-next-line
   const { backToApp, addSong, checkForExistingSongOwner } = props.addSongCallbacks;
   const { accessToken } = props;
-
-  const handleSearchInputChange = event => {
-    const { value } = event.target;
-    setSearchQuery(value);
-  };
+  
   // encodes search query to valid Spotify search query
-  // eslint-disable-next-line
-  const writeQuery = (query) => {}
-  // Submits search query to Spotify, returns search results
-  // eslint-disable-next-line
-  const fetchSearchResultsFromQuery = async (query) => {
-    // const searchResults = await query => (ping Spotify API for search results)
-    // setSearchResults();
+  const writeQuery = (query, types) => {
+    const endpoint = 'https://api.spotify.com/v1/search';
+    const querySection = `q=${query.replace(/\s/, '+')}`;
+    const typesSection = `type=${types.join()}`;
 
-    const testQuery = 'q=' + 'hey+jude' + '&'
-    const testType = 'type=' + 'track'
-    const endpoint = 'https://api.spotify.com/v1/search'
-    const searchQuery = endpoint + '?' + testQuery + testType
+    const newQuery = endpoint + '?' + [querySection, typesSection].join('&');
 
-    console.log(searchQuery)
+    return newQuery;
+  }
 
-    const response = await fetch(searchQuery, {
-      headers: {'Authorization': 'Bearer ' + accessToken}
-    });
-    const data = await response.json()
-    
-    
-  };
+  useEffect(
+    () => {
 
-  useEffect(() => {
-    // setSearchResults(searchQuery)  handles some kind of dynamic search filtering by query
-    fetchSearchResultsFromQuery('')
-  }, [searchQuery]);
+      let mounted = true;
+
+      const fetchSearchData = async () => {
+
+        setIsLoading(true)
+
+        const fetchQuery = writeQuery(searchQuery, ['track', 'album', 'artist']);
+
+        const response = await fetch(fetchQuery, {
+          headers: { 'Authorization': 'Bearer ' + accessToken }
+        })
+        const data = await response.json();
+
+        // only changes state when SearchData components are mounted
+        if (mounted) {
+          setSearchData(data);
+        }
+
+        setIsLoading(false)
+
+      }
+
+      if (accessToken && searchQuery) {
+        fetchSearchData();
+      } 
+      // When query field is empty, SearchResultsGroup resets to default state
+      else {
+        setSearchData(null)
+      }
+
+      return () => {
+        mounted = false;
+      }
+        
+    },
+    [accessToken, searchQuery]
+  );
 
   return(
     <div>
@@ -381,7 +446,10 @@ export default function AddSongsScreen (props) {
           </h1>
         </div>
         
-        <SearchBox handleSearchInputChange={handleSearchInputChange} />
+        <SearchBox 
+          handleSearchInputChange={ event => setSearchQuery(event.target.value)} 
+          clearInput={() => setSearchQuery('')}
+        />
         
       </nav>
 
@@ -389,21 +457,14 @@ export default function AddSongsScreen (props) {
 
       <div>
         {
-          searchQuery ? (
-            <SearchResultsGroup
-              query={searchQuery}
-              searchResults={searchResults}
-              addSongCallbacks={props.addSongCallbacks}
-              openDuplicateModal={() => this.setDuplicateSongModal(true)}
-            />
+          isLoading ? (
+            <div>Loading...</div>
           ) : (
-            <div style={{
-              margin: '0 auto',
-              textAlign: 'center'
-            }}>
-              Play what you love: search for artists, songs, podcasts, and more.
-            </div>
-          )
+            <SearchResultsGroup
+              searchResults={searchData}
+              addSongCallbacks={props.addSongCallbacks}
+            />
+          ) // exit isLoading?:
         }
       </div>
     </div>
