@@ -85,7 +85,19 @@ const SearchBox = props => {
   const searchInputStyle = {
     position: 'relative',
     display: 'inline-block',
-    width: '100%'
+
+    width: '100%',
+    height: '2rem',
+    padding: '1rem',
+
+    borderRadius: '4px',
+    border: 'none',
+
+    boxShadow: '0px 8px 16px hsla(0,0%,0%,0.3)',
+
+    color: 'hsla(0,0%,0%,0.8',
+    fontSize: '1.25rem',
+    fontWeight: '200'
   }
 
   const inputClearStyle = {
