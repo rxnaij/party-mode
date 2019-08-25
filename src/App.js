@@ -8,6 +8,7 @@ import './App.css';
 import AddSongsScreen from './AddSongsScreen';
 //    Individual components
 import ModalShade from './components/modal/ModalShade';
+import DonateSlotModal from './components/modal/DonateSlotModal';
 import Tooltip from './components/Tooltip';
 
 // Font Awesome
@@ -373,7 +374,10 @@ const SongSlot = props => {
  * song: song data for this slot
  */
 const FilledSongSlot = props => {
-  const { song } = props;
+
+  const { song, triggerRemoveSongsPopup } = props;
+
+  const [isSelected, setIsSelected] = useState(false);
 
   const filledSongSlotStyle = {
     fontSize: '0.9rem',
@@ -390,7 +394,13 @@ const FilledSongSlot = props => {
   return(
     <SongSlot style={filledSongSlotStyle}>
       <div>
-        <input type="checkbox" name="" className="song-checkbox" id="" />
+        <input 
+          type="checkbox" name="" className="song-checkbox" id="" 
+          onClick={event => {
+            setIsSelected(event.target.checked)
+            triggerRemoveSongsPopup()
+          }}
+        />
       </div>
       
       <div
@@ -447,60 +457,6 @@ const EmptySongSlot = props => {
   )
 };
 
-/* 
- * Modal for user-to-user song slot exchange.
- * props:
- * users: array of all users
- * currentUser: currently represented-user in parent component
- * close(): removes modal from parent component
- * donateSongSlot(): removes one song slot from user and adds a song slot to another
-*/
-const DonateSlotModal = props => {
-
-  const { users, currentUser, close, donateSongSlot } = props;
-
-  return(
-    <ModalShade close={close} >
-      <button onClick={() => close()}>
-        Close
-      </button>
-      <h3>Select the user you would like to give a slot to.</h3>
-      <ul>
-        {
-          users.map(user => 
-            <li 
-              key={`donate-to-${user.id}`}
-              style={{
-                maxWidth: '10rem',
-                margin: '0 auto',
-                marginBottom: '0.5rem',
-
-                borderRadius: '1rem',
-                backgroundColor: 'hsla(149, 37%, 100%, 0.5)',
-
-                textAlign: 'center',
-                lineHeight: '2.5rem'
-              }}
-              onClick={() => {
-                if (currentUser !== user) {
-
-                  donateSongSlot(currentUser, user);
-
-                  // TODO: send notification popup
-
-                  close()
-                }
-              }}
-            >
-              <p>{user.name}</p>
-            </li>
-          )
-        }
-      </ul>
-    </ModalShade>
-  )
-};
-
 /*
  * Container for multiple SongSlots.
  *
@@ -520,13 +476,20 @@ const SongWrapper = props => {
 
   const { songs, slots, openModal, moveToAddSongsScreen } = props;
 
+  const [removeSongsPopup, setRemoveSongsPopup] = useState(false);
+
   /* Fills an array with FilledSongSlots for each song
      that a user has already added.
      Then EmptySongSlots are added to the array until 
      the array's length becomes equal to songLimit. 
   */
   const slotsToRender = songs.map((song, i) =>
-    <FilledSongSlot key={`filledslot-${song.name}-${i}`} song={song} />
+    <FilledSongSlot
+      key={`filledslot-${song.name}-${i}`}
+      order={i}
+      song={song}
+      triggerRemoveSongsPopup={() => {setRemoveSongsPopup(!removeSongsPopup); console.log('new value: ', removeSongsPopup)}}
+    />
   );
   for (let i = 0; i < slots - songs.length; i++) {
     slotsToRender.push(
@@ -540,7 +503,29 @@ const SongWrapper = props => {
 
   return(
     <div>
-      { slotsToRender }
+      <fieldset>
+        { slotsToRender }
+      </fieldset>
+      <div>
+        {
+          removeSongsPopup && 
+          <div style={{
+            backgroundColor: 'gray',
+            position: 'fixed',
+
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '3rem'
+          }}>
+            Remove songs?
+            <button>
+              Cancel
+            </button>
+          </div>
+        }
+        
+      </div>
     </div>
   );
 };
@@ -642,6 +627,12 @@ export default class App extends Component {
       currentUser: user
     });
 
+    let userList = [...this.state.users.filter(item => item !== user)];
+    userList.unshift(user);
+
+    this.setState({
+      users: userList
+    })
   }
 
   /*
@@ -805,9 +796,8 @@ export default class App extends Component {
 
       let renderResult = [];
 
-      let currentUser = this.state.currentUser;
-      let userList = [...this.state.users.filter(user => user !== currentUser)];
-      userList.unshift(allUsers, currentUser);
+      let userList = this.state.users.filter(user => user !== allUsers);
+      userList.unshift(allUsers);
 
       for (let i = 0; i < userList.length; i++) {
 
@@ -827,39 +817,12 @@ export default class App extends Component {
         }
 
       }
-      /*  This following code works, but I'm not comfortable with the logic, so I'll leave it
-          be for now. 
-       */
-      // this.state.users.slice(0, usersToRender).map((user, i) => {
-
-      //   if (i % 5 === 0) {
-
-      //     let row = [];
-
-      //     this.state.users.slice(i, i + 5).map(innerUser =>
-      //       row.push(innerUser.name)
-      //       // <Profile 
-      //       //   key={`profile+${user.id}`}
-      //       //   user={user}
-      //       //   setAsCurrentUser={() => this.setCurrentUser(user)}
-      //       // />
-      //     )
-
-      //     renderResult.push(row);
-
-      //   }
-
-      //   return true;
-
-      // });
 
       return renderResult;
     }
 
     // User components to render
     const rowsToRender = this.state.allUsersVisible ? profilesToRender().length : 1
-
-
 
     return (
 
