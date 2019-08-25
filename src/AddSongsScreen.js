@@ -142,7 +142,7 @@ const SearchBox = props => {
  * item: search result item to display in this search result
  */ 
 const SearchResult = props => {
-  const { item, action } = props;
+  const { item, action, imageURL } = props;
 
   const style = {
     // border: '1px solid black',
@@ -150,6 +150,8 @@ const SearchResult = props => {
     margin: '0 auto',
 
     fontSize: '0.9rem',
+
+    borderRadius: '2px'
   };
 
   const flexContainer = {
@@ -160,17 +162,36 @@ const SearchResult = props => {
     marginBottom: '0.5rem',
   }
 
-  const fakeImg = {
-    backgroundColor: 'gray',
+  const imageContainer = {
+
     width: '3rem',
-    height: '3rem',
+    height: '3rem'
+    
+  };
+  const imageStyle = {
+    zIndex: '2',
+
+    width: 'inherit',
+    height: 'inherit',
+
     borderRadius: '4px',
     boxShadow: '0px 4px 8px hsla(0,0%,0%,0.3)',
-  };
+  }
+
+  const artists = item.artists 
+                  ? item.artists.reduce((artistList, artist) => 
+                      artistList.concat(artist.name), []).join(', ') 
+                  : null;
 
   return(
     <div style={{...style, ...flexContainer, ...props.style}}>
-      <div style={fakeImg}></div>
+      <div style={imageContainer}>
+        <img 
+          src={imageURL} 
+          alt={item.name}
+          style={imageStyle}
+        />
+      </div>
       <div id="track-title-and-type" style={{
         flexDirection: 'column',
         flexGrow: 2,
@@ -182,9 +203,7 @@ const SearchResult = props => {
           {
             item.type + (
               item.type !== 'artist'
-                ? ' by ' + item.artists.reduce((artistList, artist) => 
-                            artistList.concat(artist.name)
-                            , []).join(', ')
+                ? ' by ' + artists
                 : ''
             )
           }
@@ -230,16 +249,22 @@ const TrackSearchResult = props => {
   }
   const addButtonStyle_added = {
     ...addButtonStyle_notAdded,
-    backgroundColor: 'darkgray'
+    backgroundColor: 'green',
+    border: 0,
   }
   const wasAddedStyle = {
     backgroundColor: 'lightgray',
     color: 'gray'
   }
 
+  const images = item.album.images
+  const loc = images.length - 1
+  const imageURL = loc > 0 ? images[loc].url : null
+
   return(
     <SearchResult 
       item={item} 
+      imageURL={imageURL}
       style={ isAdded && wasAddedStyle }
     >
       <div
@@ -257,6 +282,9 @@ const TrackSearchResult = props => {
               setIsAdded(true);
             }
 
+          } else {
+            addSongCallbacks.removeSong(item);
+            setIsAdded(false);
           }
         }}
       >
@@ -278,9 +306,13 @@ const TrackSearchResult = props => {
 const AlbumSearchResult = props => {
   const { item } = props
 
+  const imageLoc = item.images.length - 1
+  const imageURL = imageLoc > 0 ? item.images[imageLoc].url : null
+
   return(
     <SearchResult
       item={item}
+      imageURL={imageURL}
     >
       <div>
         <FontAwesomeIcon icon="chevron-right" />
@@ -289,7 +321,24 @@ const AlbumSearchResult = props => {
   )
 }
 // eslint-disable-next-line
-const ArtistSearchResult = () => {}
+const ArtistSearchResult = props => {
+  const { item } = props
+
+  const imageLoc = item.images.length - 1
+  const imageURL = imageLoc > 0 ? item.images[imageLoc].url : null
+
+  return(
+    <SearchResult
+      item={item}
+      imageURL={imageURL}
+    >
+      <div>
+        <FontAwesomeIcon icon="chevron-right" />
+      </div>
+    </SearchResult>
+
+  )
+}
 
 /*
  *
@@ -339,7 +388,7 @@ const SearchResultsGroup = props => {
         {
           searchResults.artists.items.length > 0 ? (
             searchResults.artists.items.slice(0,4).map(artist =>
-              <SearchResult 
+              <ArtistSearchResult 
                 key={artist.id}
                 item={artist}
               />
@@ -408,6 +457,8 @@ export default function AddSongsScreen (props) {
         if (mounted) {
           setSearchData(data);
         }
+
+        console.log(data)
 
         setIsLoading(false)
 

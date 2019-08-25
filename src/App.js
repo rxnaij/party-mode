@@ -383,6 +383,10 @@ const FilledSongSlot = props => {
     backgroundImage: 'linear-gradient(to right top, #207155, #1c9068, #14b07a, #08d18c, #00f39d)'
   }
 
+  const artists = song.artists ? song.artists.reduce((artistList, artist) => 
+                    artistList.concat(artist.name)
+                  , []).join(', ') : null;
+
   return(
     <SongSlot style={filledSongSlotStyle}>
       <div>
@@ -396,7 +400,7 @@ const FilledSongSlot = props => {
         }}
       >
         <h5>{song.name}</h5>
-        <h6>{song.artist}</h6>
+        <h6>{song.artist || artists}</h6>
       </div>
       <div>
        <FontAwesomeIcon icon="play-circle" />
@@ -576,6 +580,7 @@ export default class App extends Component {
     this.setCurrentUser = this.setCurrentUser.bind(this);
     this.setAddUserModal = this.setAddUserModal.bind(this);
     this.addSong = this.addSong.bind(this);
+    this.removeSong =  this.removeSong.bind(this);
     this.setDonateSlotModal = this.setDonateSlotModal.bind(this);
     this.donateSongSlot = this.donateSongSlot.bind(this);
   }
@@ -680,13 +685,28 @@ export default class App extends Component {
         }
       }));
 
+      console.log(updatedSongs)
+
     } else {
       throw new Error(`You've already reached the limit of ${this.state.songLimit} songs. You'll need to receive a song slot donation from another user in order to add more songs.`)
     }
   }
 
-  removeSong() {
-    
+  /*
+   * Removes specified song from current user's song list.
+   * Does nothing if the current user doesn't have that song.
+   * removedSong: song to be removed
+   */ 
+  removeSong(removedSong) {
+
+    const updatedSongs = this.state.currentUser.songs.filter(song => song !== removedSong);
+
+    this.setState(state => ({
+      currentUser: {
+        ...state.currentUser,
+        songs: updatedSongs
+      }
+    }))
   }
 
   /*
@@ -733,6 +753,8 @@ export default class App extends Component {
       backToApp: () => this.setCurrentScreen('App'),
 
       addSong: this.addSong,
+
+      removeSong: this.removeSong,
 
       checkForExistingSongOwner: this.checkForExistingSongOwner
 
@@ -950,7 +972,9 @@ export default class App extends Component {
         />
       )
       ) : (
-        <button 
+        <div>
+          <h1>Welcome to Spotify Party Mode</h1>
+          <button 
           onClick={ () => {
             window.location = window.location.href.includes('localhost') 
             ? 'http://localhost:8888/login'
@@ -959,6 +983,8 @@ export default class App extends Component {
           style={{}}>
             Sign in with Spotify
         </button>
+        </div>
+        
       )
 
       /* Note: The screen routing that follows is going to suck. I apologize in advance,
