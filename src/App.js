@@ -7,7 +7,7 @@ import './App.css';
 //    Screens
 import AddSongsScreen from './AddSongsScreen';
 //    Individual components
-import ModalShade from './components/ModalShade';
+import ModalShade from './components/modal/ModalShade';
 import Tooltip from './components/Tooltip';
 
 // Font Awesome
