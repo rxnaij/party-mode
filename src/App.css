@@ -90,6 +90,24 @@ strong {
   color: #171717;
 }
 
-.App {
-  
+.secondary {
+
+  cursor: pointer;
+
+  background-color: hsla(0, 0%, 100%, 0);
+  padding: 0.75rem 1rem;
+
+  border-radius: 2px;
+  border: 2px solid white;
+  border: none;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: white;
+}
+
+.secondary:hover, .secondary:active {
+  background-color: hsla(0, 0%, 100%, 1.0);
+
+  color: green;
 }
