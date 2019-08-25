@@ -627,12 +627,17 @@ export default class App extends Component {
       currentUser: user
     });
 
-    let userList = [...this.state.users.filter(item => item !== user)];
-    userList.unshift(user);
-
-    this.setState({
-      users: userList
-    })
+    // Moves user to beginning of user list
+    // (doesn't add "All" user to list)
+    if (user.name !== 'All') {
+      
+      let userList = [...this.state.users.filter(item => item !== user)];
+      userList.unshift(user);
+  
+      this.setState({
+        users: userList
+      })
+    }
   }
 
   /*
@@ -796,7 +801,7 @@ export default class App extends Component {
 
       let renderResult = [];
 
-      let userList = this.state.users.filter(user => user !== allUsers);
+      let userList = this.state.users.filter(user => user.name !== 'All');
       userList.unshift(allUsers);
 
       for (let i = 0; i < userList.length; i++) {
