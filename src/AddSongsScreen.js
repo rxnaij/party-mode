@@ -138,7 +138,7 @@ export default function AddSongsScreen (props) {
   );
 
   return(
-    <div>
+    <div className="AddSongsScreen">
 
       <div className="section-divider"></div>
 

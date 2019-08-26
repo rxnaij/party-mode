@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import FilledSongSlot from './FilledSongSlot';
 import EmptySongSlot from './EmptySongSlot';
 
@@ -19,52 +20,77 @@ import EmptySongSlot from './EmptySongSlot';
 */
 export default function SongWrapper (props) {
 
-  const { songs, slots, initialSlots, openModal, moveToAddSongsScreen } = props;
+  const { songs, numSlots, initialSlots, openModal, moveToAddSongsScreen } = props;
 
   const [removeSongsPopup, setRemoveSongsPopup] = useState(false);
 
-  /* Fills an array with FilledSongSlots for each song
-     that a user has already added.
-     Then EmptySongSlots are added to the array until 
-     the array's length becomes equal to their .slots property. 
-  */
-
-  const numEmptySlots = (slots ? slots : initialSlots) - songs.length;
-
-  const slotsToRender = songs.map((song, i) =>
-    <FilledSongSlot
-      key={`filledslot-${song.name}-${i}`}
-      order={i}
-      song={song}
-      triggerRemoveSongsPopup={() => {setRemoveSongsPopup(!removeSongsPopup); console.log('new value: ', removeSongsPopup)}}
-    />
-  );
-  for (let i = 0; i < numEmptySlots; i++) {
-    slotsToRender.push(
-      <EmptySongSlot
-        key={`emptyslot-${i}`}
-        openModal={openModal}
-        moveToAddSongsScreen={moveToAddSongsScreen}
-      />
-    );
+  // initial state
+  const initialEmptySlots = () => {
+    let list = [];
+    for (let i = 0; i < numSlots || initialSlots; i++) {
+      list.push(
+        <EmptySongSlot openModal={openModal} moveToAddSongsScreen={moveToAddSongsScreen} key={i} />
+      );
+    }
+    return list;
   }
+
+  const [songSlots, setSlots] = useState(initialEmptySlots);
+
+  /* Automatically updates song slots when any of the below variables are changed */
+  useEffect (
+    () => {
+
+      const slotsToRender = songs.map((song, i) =>
+
+        <FilledSongSlot
+          key={`filledslot-${song.id}`}
+          order={i}
+          song={song}
+          
+        />
+
+      );
+
+      const numEmptySlots = (numSlots ? numSlots : initialSlots) - songs.length;
+      for (let i = 0; i < numEmptySlots; i++) {
+
+        slotsToRender.push(
+          <EmptySongSlot
+            key={`emptyslot-${i}`}
+            openModal={openModal}
+            moveToAddSongsScreen={moveToAddSongsScreen}
+          />
+        );
+
+      }
+
+      setSlots(slotsToRender)
+
+    },
+    // Variables determining when slot state changes
+    [songs, numSlots, initialSlots, removeSongsPopup, openModal, moveToAddSongsScreen]
+  )
+
+  const popupStyle = {
+    backgroundColor: 'gray',
+    position: 'fixed',
+
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '3rem'
+  }
+
   return(
     <div>
-      <fieldset>
-        { slotsToRender }
+      <fieldset onClick={event => console.log(event.target)}>
+        { songSlots }
       </fieldset>
       <div>
         {
           removeSongsPopup && 
-          <div style={{
-            backgroundColor: 'gray',
-            position: 'fixed',
-
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '3rem'
-          }}>
+          <div style={popupStyle}>
             Remove songs?
             <button>
               Cancel

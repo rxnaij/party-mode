@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import SongSlot from './SongSlot';
 
+import ModalShade from '../modal/ModalShade';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /*
@@ -19,7 +21,7 @@ export default function FilledSongSlot (props) {
     border: '0px',
 
     color: 'white',
-    backgroundImage: 'linear-gradient(to right top, #207155, #1c9068, #14b07a, #08d18c, #00f39d)'
+    backgroundImage: 'linear-gradient(to right top, #207155, #1c9068, #14b07a, #08d18c, #00f39d)',
   }
 
   const artists = song.artists ? song.artists.reduce((artistList, artist) => 
@@ -33,7 +35,6 @@ export default function FilledSongSlot (props) {
           type="checkbox" name="" className="song-checkbox" id="" 
           onClick={event => {
             setIsSelected(event.target.checked)
-            triggerRemoveSongsPopup()
           }}
         />
       </div>
@@ -50,7 +51,7 @@ export default function FilledSongSlot (props) {
       <div>
        <FontAwesomeIcon icon="play-circle" />
       </div>
-      
+
     </SongSlot>
   )
 };
