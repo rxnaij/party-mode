@@ -6,8 +6,10 @@ import './App.css';
 // Components
 //    Screens
 import AddSongsScreen from './AddSongsScreen';
+import InitializeScreen from './InitializeScreen';
 //    Individual components
-import ModalShade from './components/modal/ModalShade';
+import ProfileRow from './components/profiles/ProfileRow'
+import AddNewUserModal from './components/modal/AddNewUserModal'
 import DonateSlotModal from './components/modal/DonateSlotModal';
 import TotalCounter from './components/counter/TotalCounter';
 import SongWrapper from './components/song-slots/SongWrapper';
@@ -162,137 +164,6 @@ const fakeData = {
   ]
 }
 
-/*
- * A user profile avatar. When clicked, sets user as current user in parent component.
- * props:
- * user: the user represented on this profile
- * setAsCurrentUser: sets user as current user in app
- */ 
-const Profile = props => {
-
-  const { user, isCurrentUser, setAsCurrentUser } = props;
-
-  const profileStyle = {
-    paddingBottom: '0.5rem',
-
-    textAlign: 'center',
-    fontSize: '0.75rem',
-    cursor: 'pointer'
-  }
-
-  const isCurrentUserStyle = {
-    ...profileStyle,
-    fontWeight: 'bold',
-    boxShadow: '0px 2px #0DC181'
-  }
-
-  const profileImgStyle = {
-    width: '2.5rem',
-    height: '2.5rem',
-    borderRadius: '50%',
-
-    margin: '0 auto',
-    marginBottom: '0.25rem',
-
-    backgroundColor: isCurrentUser ? '#A1FFCF' : 'lightgray',
-    color: 'black',
-
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    fontSize: '1rem',
-    textAlign: 'center'
-  }
-
-  return(
-    <div
-      key={user.id}
-      style={isCurrentUser ? isCurrentUserStyle : profileStyle}
-      onClick={() => setAsCurrentUser()}
-    >
-      <div style={profileImgStyle}>
-        {user.name[0]}
-      </div>
-      <div>
-        {user.name}
-      </div>
-      <div>
-        {user.songs.length}
-      </div>
-    </div>
-  )
-};
-
-const ProfileRow = props => {
-
-  const { profiles, currentUser, setAsCurrentUser } = props;
-
-  const profileRowStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-
-    marginBottom: '1rem'
-  }
-  
-  return(
-    <div
-      style={profileRowStyle}
-    >
-      {
-        profiles.map(user =>
-          <Profile 
-            key={`profile+${user.id}`}
-            user={user}
-            isCurrentUser={currentUser === user}
-            setAsCurrentUser={() => setAsCurrentUser(user)}
-          />
-        )
-      }
-    </div>
-  )
-}
-
-/*
- * Modal prompting new user to be added to list of users in parent.
- * props:
- * users: list of all users in parent component
- * addUser(): adds new user to parent component
- * close(): removes Modal from parent component
- */ 
-const AddNewUserModal = props => {
-
-  const { users, addUser, close } = props;
-
-  return(
-    <ModalShade close={close} >
-      <form>
-        <label to="newUserName">Add new collaborator:</label>
-        <input type="text" name="newUserName" id="newUserName"/>
-        <button onClick={ () => close() }>
-          Cancel
-        </button>
-        <button onClick={() => {
-          if (document.getElementById('newUserName').value) {
-            
-            const newUser = {
-              name: document.getElementById('newUserName').value,
-              id: users.length + 1,
-              songs: []
-            };
-
-            addUser(newUser);
-            close();
-
-          }
-        }}>
-          Add
-        </button>
-      </form>
-    </ModalShade>
-  )
-};
-
 // App component
 export default class App extends Component {
   constructor() {
@@ -300,13 +171,17 @@ export default class App extends Component {
     const initialSlots = 5;
     this.state = {
 
+      playlistName: null,
+
       initialSlots,
 
+      equalizedShuffle: false,
+
       users: [
-        ...fakeData.users.map(user => ({
-          ...user,
-          slots: initialSlots
-        }))
+        // ...fakeData.users.map(user => ({
+        //   ...user,
+        //   slots: initialSlots
+        // }))
       ],
 
       /* Login check (temporary placeholder) */
@@ -314,8 +189,8 @@ export default class App extends Component {
 
       /* Screen visibility triggers */
 
-      screens: ['App', 'AddSongsScreen'],
-      currentScreen: 'App',
+      screens: ['App', 'AddSongsScreen', 'InitializeScreen'],
+      currentScreen: 'InitializeScreen',
 
       /* Component visibility triggers */
 
@@ -325,7 +200,12 @@ export default class App extends Component {
     }
 
     // Binding state helper methods
+    // State setters
     this.setCurrentScreen = this.setCurrentScreen.bind(this);
+    this.setPlaylistName = this.setPlaylistName.bind(this);
+    this.setInitialSlots = this.setInitialSlots.bind(this);
+    this.setEqualizedShuffle = this.setEqualizedShuffle.bind(this);
+
     this.checkForExistingSongOwner = this.checkForExistingSongOwner.bind(this);
     this.addUser = this.addUser.bind(this);
     this.setCurrentUser = this.setCurrentUser.bind(this);
@@ -348,6 +228,29 @@ export default class App extends Component {
     });
 
   }
+
+  setPlaylistName (name) {
+    this.setState({
+      playlistName: name
+    })
+  }
+
+  setInitialSlots (num) {
+    this.setState({
+      initialSlots: num
+    })
+  }
+
+  setUsers () {
+
+  }
+
+  setEqualizedShuffle (val) {
+    this.setState({
+      equalizedShuffle: val
+    })
+  }
+
 
   /*
    * Helper method that finds whether a song exists inside
@@ -380,6 +283,10 @@ export default class App extends Component {
     this.setState({
       users: updatedUsers
     })
+
+    if (this.state.users.length === 0) {
+      this.setCurrentUser(newUser);
+    }
 
   }
 
@@ -459,7 +366,7 @@ export default class App extends Component {
    * Does nothing if the current user doesn't have that song.
    * removedSong: song to be removed
    */ 
-  removeSong(removedSong) {
+  removeSong (removedSong) {
 
     const updatedSongs = this.state.currentUser.songs.filter(song => song !== removedSong);
 
@@ -475,7 +382,7 @@ export default class App extends Component {
    * Adds or removes DonateSlotModal
    * isVisible: whether setDonateSlotModal is active
    */ 
-  setDonateSlotModal(isVisible) {
+  setDonateSlotModal (isVisible) {
 
     this.setState({
       donateSlotModalIsVisible: isVisible
@@ -489,7 +396,7 @@ export default class App extends Component {
    * donor: user to give one empty song slot
    * recipient: user to receive one empty song slot
   */
-  donateSongSlot(donor, recipient) {
+  donateSongSlot (donor, recipient) {
 
     const emptySlots = donor.slots - donor.songs.length;
     if (emptySlots < 1) throw new Error(`${donor.name} doesn't have any more slots to give.`);
@@ -507,7 +414,7 @@ export default class App extends Component {
 
   }
 
-  organizePlaylist(users) {
+  organizePlaylist (users) {
     // Basic alg that will iterate through each user's lists once, in order
     // Assume that all users have added the max # of songs allowed
     let organized = [];
@@ -531,7 +438,7 @@ export default class App extends Component {
   // However, the list is guaranteed to be organized in a way
   // that alternates across users, such that each user is guaranteed
   // to go at least once every cycle.
-  organizePlaylist_randomSelection(users) {
+  organizePlaylist_randomSelection (users) {
     // Randomly shuffles elements in array, based off Fisher-Yates algorithm
     function shuffle(array) {
       let m = array.length;
@@ -602,7 +509,9 @@ export default class App extends Component {
   
 
   // Grouping callbacks
-  addSongCallbacks() {
+
+  // Add songs screen
+  addSongCallbacks () {
 
     return {
 
@@ -618,25 +527,47 @@ export default class App extends Component {
 
   }
 
+  // Initialize screen
+  initializeCallbacks () {
+
+    return {
+
+      backToApp: () => this.setCurrentScreen('App'),
+
+      setPlaylistName: this.setPlaylistName,
+
+      setInitialSlots: this.setInitialSlots,
+
+      setEqualizedShuffle: this.setEqualizedShuffle,
+
+      addUser: this.addUser,
+
+    };
+  }
+
   /* Lifecycle methods */
 
   componentDidMount() {
 
+    console.log('logging app component mount')
+    console.log(this.state.users)
+
     // Fake initial data-loading for now
+    this.state.users.length > 0 && this.setCurrentUser(this.state.users[0]);
 
-    this.setCurrentUser(this.state.users[0]);
-
-    this.setState({
-      accessToken: new URLSearchParams(window.location.search).get('access_token') || null
-    });
+    this.setState(state => ({
+      accessToken: new URLSearchParams(window.location.search).get('access_token') || null,
+    }) );
 
   }
 
-  render(){
+  componentDidUpdate() {
+    if (!this.state.currentUser) {
+      this.state.users.length > 0 && this.setCurrentUser(this.state.users[0]);
+    }
+  }
 
-    // console.log(
-    //   'organizePlaylist', this.organizePlaylist(this.state.users)
-    // )
+  render(){
 
     console.log(
       'organizePlaylist_randomSelection', this.organizePlaylist_randomSelection(this.state.users)
@@ -688,134 +619,153 @@ export default class App extends Component {
     // User components to render
     const rowsToRender = this.state.allUsersVisible ? profilesToRender().length : 1
 
+
+
+
     return (
 
       this.state.accessToken ? (
-        this.state.currentScreen === 'App' ? (
-        <div className="App">
 
-          <div className="section-divider"></div>
-          
-          <h1>Richard's Party Playlist</h1>
-          <h2>Add Songs</h2>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center'
-          }}>
-            <TotalCounter 
-              name="Users" 
-              icon="user"
-              value={totalUsers} 
-            />
-            <TotalCounter 
-              name="Songs" 
-              icon="music"
-              value={totalSongs} 
-            />
-          </div>
+        this.state.currentScreen === 'App' && this.state.playlistName !== null ? (
 
-          <div className="section-divider"></div>
+          <div className="App">
 
-          <section id="profiles">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              <h3>Adding songs as: </h3>
-              <FontAwesomeIcon
-                style={{ cursor: 'pointer' }}
-                onClick={ () => this.toggleAllUsersList() }
-                icon={
-                  this.state.allUsersVisible ? "angle-up" : "angle-down"
-                }
+            <div className="section-divider"></div>
+            
+            <h1>{ this.state.playlistName || 'Party Playlist' }</h1>
+            <h2>Add Songs</h2>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <TotalCounter 
+                name="Users" 
+                icon="user"
+                value={totalUsers} 
+              />
+              <TotalCounter 
+                name="Songs" 
+                icon="music"
+                value={totalSongs} 
               />
             </div>
-            {
-              this.state.currentUser && 
-              profilesToRender().slice(0, rowsToRender).map((row, i) => 
-                <ProfileRow 
-                  key={`profile-row-${i}`}
-                  profiles={row}
-                  currentUser={this.state.currentUser}
-                  setAsCurrentUser={this.setCurrentUser}
+
+            <div className="section-divider"></div>
+
+            <section id="profiles">
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <h3>Adding songs as: </h3>
+                <FontAwesomeIcon
+                  style={{ cursor: 'pointer' }}
+                  onClick={ () => this.toggleAllUsersList() }
+                  icon={
+                    this.state.allUsersVisible ? "angle-up" : "angle-down"
+                  }
                 />
-              )
-            }
-            <button onClick={() => this.setAddUserModal(true)}>
+              </div>
+              {
+                this.state.currentUser && 
+                profilesToRender().slice(0, rowsToRender).map((row, i) => 
+                  <ProfileRow 
+                    key={`profile-row-${i}`}
+                    profiles={row}
+                    currentUser={this.state.currentUser}
+                    setAsCurrentUser={this.setCurrentUser}
+                  />
+                )
+              }
+              <button 
+                className="secondary"
+                style={{display: 'block', margin: '0 auto'}}
+                onClick={() => this.setAddUserModal(true)}
+              >
                 <FontAwesomeIcon icon={faPlus} /> Add new collaborator
               </button>
-            {
-              this.state.addUserModalIsVisible &&
-              <AddNewUserModal
-                users={this.state.users}
-                addUser={this.addUser}
-                close={() => this.setAddUserModal(false)}
-              />
-            }
-          </section>
-
-          <div className="section-divider"></div>
-
-          <section id="your-songs">
-            <h3>Your songs</h3>
-            {
-              this.state.currentUser ?
-              <div>
-                <strong>Current user: { this.state.currentUser.name }</strong>
-                <h4>
-                  { 
-                    this.state.currentUser.songs.length }/{ 
-                      this.state.currentUser.slots || this.state.initialSlots 
-                  } songs added
-                </h4>
-                <SongWrapper 
-                  songs={this.state.currentUser.songs} 
-                  numSlots={this.state.currentUser.slots}
-                  initialSlots={this.state.intialSlots}
-                  openModal={() => this.setDonateSlotModal(true)}
-                  moveToAddSongsScreen={() => this.setCurrentScreen('AddSongsScreen')}
+              {
+                this.state.addUserModalIsVisible &&
+                <AddNewUserModal
+                  users={this.state.users}
+                  addUser={this.addUser}
+                  close={() => this.setAddUserModal(false)}
                 />
-                {
-                  this.state.donateSlotModalIsVisible &&
-                  <DonateSlotModal 
-                    users={this.state.users}
-                    currentUser={this.state.currentUser}
-                    donateSongSlot={this.donateSongSlot}
-                    close={() => this.setDonateSlotModal(false)}
-                  />
-                }
-              </div> :
-              <div>Loading...</div>
-            }
-          </section>
+              }
+            </section>
 
-          
-        </div> // End .App
-      ) : (
-        <AddSongsScreen
-          accessToken={this.state.accessToken}
-          addSongCallbacks={this.addSongCallbacks()}
-        />
-      )
-      ) : (
+            <div className="section-divider"></div>
+
+            <section id="your-songs">
+              <h3>Your songs</h3>
+              {
+                this.state.currentUser ?
+                <div>
+                  <strong>Current user: { this.state.currentUser.name }</strong>
+                  <h4>
+                    { 
+                      this.state.currentUser.songs.length }/{ 
+                        this.state.currentUser.slots || this.state.initialSlots 
+                    } songs added
+                  </h4>
+                  <SongWrapper 
+                    songs={this.state.currentUser.songs} 
+                    numSlots={this.state.currentUser.slots}
+                    initialSlots={this.state.intialSlots}
+                    openModal={() => this.setDonateSlotModal(true)}
+                    moveToAddSongsScreen={() => this.setCurrentScreen('AddSongsScreen')}
+                  />
+                  {
+                    this.state.donateSlotModalIsVisible &&
+                    <DonateSlotModal 
+                      users={this.state.users}
+                      currentUser={this.state.currentUser}
+                      donateSongSlot={this.donateSongSlot}
+                      close={() => this.setDonateSlotModal(false)}
+                    />
+                  }
+                </div> :
+                <div>Loading...</div>
+              }
+            </section>
+
+            
+          </div> // End .App
+        ) : ( // Add songs screen: currentScreen === 'AddSongsScreen'
+          this.state.currentScreen === 'AddSongsScreen' ? (
+            <AddSongsScreen
+              accessToken={this.state.accessToken}
+              addSongCallbacks={this.addSongCallbacks()}
+            />
+          ) : ( // Initialze screen: currentScreen === 'InitializeScreen'
+            <InitializeScreen 
+              initializeCallbacks={this.initializeCallbacks()}
+            />
+          )
+        )
+      ) : ( // Login screen
         <div>
-          <h1>Welcome to Spotify Party Mode</h1>
+          <h1>Welcome to Spotify Party Mode!</h1>
           <button 
-          onClick={ () => {
-            window.location = window.location.href.includes('localhost') 
-            ? 'http://localhost:8888/login'
-            : 'https://rxnaij-playlists-backend.herokuapp.com/login'
-          }}
-          style={{}}>
-            Sign in with Spotify
-        </button>
+            className="primary"
+            onClick={ () => {
+              window.location = window.location.href.includes('localhost') 
+              ? 'http://localhost:8888/login'
+              : 'https://rxnaij-playlists-backend.herokuapp.com/login'
+            }}
+            style={{
+              display: 'block',
+              margin: '0 auto'
+            }}>
+              Sign in with Spotify
+          </button>
         </div>
         
       )
 
-      /* Note: The screen routing that follows is going to suck. I apologize in advance,
+      /* Note: The screen routing sucks, I know. I apologize in advance,
        * but maintain that this is simply a prototype and not a production app.
        */
       

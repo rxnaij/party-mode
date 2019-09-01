@@ -12,11 +12,8 @@ import EmptySongSlot from './EmptySongSlot';
  * openModal(): activates DonateSlotModal in parent component
  * moveToAddSongsScreen(): switches parent display from App to AddSongsScreen
  * 
- * Notes:
- * **Potential new logic:
- * Create an array with $initialSlots number of EmptySongSlots
- * find() EmptySongSlots
- * Remove (or replace?)
+ * TODO:
+ * prevent All from adding songs or rendering EmptySongSlots
 */
 export default function SongWrapper (props) {
 
@@ -53,8 +50,8 @@ export default function SongWrapper (props) {
       );
 
       const numEmptySlots = (numSlots ? numSlots : initialSlots) - songs.length;
-      for (let i = 0; i < numEmptySlots; i++) {
 
+      for (let i = 0; i < numEmptySlots; i++) {
         slotsToRender.push(
           <EmptySongSlot
             key={`emptyslot-${i}`}

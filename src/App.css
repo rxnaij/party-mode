@@ -47,10 +47,6 @@ h5 {
   margin-bottom: 0.25rem;
 }
 
-h6 {
-  
-}
-
 strong {
   line-height: 1.2rem;
 }
@@ -91,6 +87,27 @@ strong {
   color: #171717;
 } */
 
+.primary {
+  cursor: pointer;
+
+  background-color: green;
+  box-shadow: 0px 4px 4px hsla(0, 0%, 0%, 0.3);
+  padding: 0.75rem 1rem;
+
+  border-radius: 2px;
+  border: none;
+
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: white;
+}
+
+.primary:hover, .primary:active {
+  transform: translateY(2px);
+  box-shadow: 0px 0px 2px hsla(0, 0%, 0%, 0.3);
+}
+
 .secondary {
 
   cursor: pointer;
@@ -114,4 +131,58 @@ strong {
 
 .secondary span {
   margin-left: 0.25rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: space-around;
+  align-items: center;
+
+  max-width: 720px;
+}
+.form-section {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 2rem;
+
+  justify-content: space-between;
+
+  width: 100%;
+
+}
+.form-section>.helper-text {
+  font-size: 0.75rem;
+}
+.form-section>label, .form-section>input {
+  display: block;
+}
+.text-input input, .number-input input {
+  border: none;
+
+  outline: none;
+
+  height: 2rem;
+  background-color: #eeeeee;
+
+  margin-top: 0.5rem;
+
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  font-size: 0.875rem;
+}
+
+.text-input input:focus, .number-input input:focus {
+  outline: 4px hsl(240, 100%, 67%) solid;
+}
+
+.text-input input:valid {
+  outline-color: none;
+}
+
+.text-input input:invalid {
+  outline-color: red;
 }
