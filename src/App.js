@@ -2,6 +2,7 @@
 import React, { Component, useState, useEffect } from 'react';
 import 'reset-css';
 import './App.css';
+import Spotify from 'spotify-web-api-js';
 
 // Components
 //    Screens
@@ -186,6 +187,7 @@ export default class App extends Component {
 
       /* Login check (temporary placeholder) */
       accessToken: null,
+      userID: null,
 
       /* Screen visibility triggers */
 
@@ -549,12 +551,6 @@ export default class App extends Component {
 
   componentDidMount() {
 
-    console.log('logging app component mount')
-    console.log(this.state.users)
-
-    // Fake initial data-loading for now
-    this.state.users.length > 0 && this.setCurrentUser(this.state.users[0]);
-
     this.setState(state => ({
       accessToken: new URLSearchParams(window.location.search).get('access_token') || null,
     }) );
@@ -730,6 +726,48 @@ export default class App extends Component {
                 <div>Loading...</div>
               }
             </section>
+
+            <button style={{
+              position: 'fixed',
+              right: '1rem',
+              bottom: '1rem',
+
+              width: '2rem',
+              height: '2rem',
+
+              border: 0,
+              borderRadius: '50%',
+
+              boxShadow: '0 8px 16px hsla(0, 0%, 0%, 0.3)',
+
+              fontSize: '1rem'
+            }} onClick={async () => {
+              
+              const response = await fetch('https://api.spotify.com/v1/me', { 
+                headers: { 'Authorization': 'Bearer ' + this.state.accessToken }
+              });
+              const data = await response.json();
+              const user_id = data.id;
+
+              const postData = JSON.stringify({
+                "name": this.state.playlistName,
+                "description": 'This is a cool new Party Playlist',
+                "public": false,
+                "collaborative": true
+              });
+
+              fetch(`https://api.spotify.com/v1/users/${user_id}/playlists`, {
+                headers: {
+                  'Authorization': 'Bearer ' + this.state.accessToken,
+                  'Content-Type': 'application/json'
+                },
+                body: postData,
+                method: 'POST'
+              });
+
+            }}>
+              Create playlist!
+            </button>
 
             
           </div> // End .App
