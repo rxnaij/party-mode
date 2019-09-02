@@ -2,16 +2,16 @@
 import React, { Component, useState, useEffect } from 'react';
 import 'reset-css';
 import './App.css';
-import Spotify from 'spotify-web-api-js';
 
 // Components
 //    Screens
 import AddSongsScreen from './AddSongsScreen';
 import InitializeScreen from './InitializeScreen';
 //    Individual components
-import ProfileRow from './components/profiles/ProfileRow'
-import AddNewUserModal from './components/modal/AddNewUserModal'
+import ProfileRow from './components/profiles/ProfileRow';
+import AddNewUserModal from './components/modal/AddNewUserModal';
 import DonateSlotModal from './components/modal/DonateSlotModal';
+import CreatePlaylistModal from './components/modal/CreatePlaylistModal';
 import TotalCounter from './components/counter/TotalCounter';
 import SongWrapper from './components/song-slots/SongWrapper';
 
@@ -21,169 +21,21 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 library.add(faCheckSquare, faPlus, faHands, faTimes, faSearch, faAngleUp, faAngleDown, faPlayCircle, faUser, faMusic, faChevronRight);
 
-// Fake server data
-const fakeData = {
-  users: [
-    {
-      name: 'Andrew',
-      id: 0,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Let it Go',
-          artist: 'Frozen'
-        }
-      ]
-    },
-    {
-      name: 'Steven',
-      id: 1,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Satellite Mind',
-          artist: 'Metric'
-        },
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Lonely Boy',
-          artist: 'The Black Keys'
-        }
-      ]
-    },
-    {
-      name: 'Julia',
-      id: 2,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: "Can't Stop Us",
-          artist: 'Macklemore'
-        }
-      ]
-    },
-    {
-      name: 'Quin',
-      id: 3,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'i',
-          artist: 'Kendrick Lamar'
-        },
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Time',
-          artist: 'Pink Floyd'
-        }
-      ]
-    },
-    {
-      name: 'Christina',
-      id: 4,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Take A Chance On Me',
-          artist: 'ABBA'
-        }
-      ]
-    },
-    {
-      name: 'Richard',
-      id: 5,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Sad Valentine',
-          artist: 'No Vacation'
-        }
-      ]
-    },
-    {
-      name: 'Rosie',
-      id: 6,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Seoul Town Road',
-          artist: 'BTS'
-        }
-      ]
-    },
-    {
-      name: 'Keeling',
-      id: 7,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Kids',
-          artist: 'MGMT'
-        }
-      ]
-    },
-    {
-      name: 'Michael',
-      id: 8,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'La vie en rose',
-          artist: 'Louie Armstrong'
-        },
-        {
-          type: 'track',
-          imageURL: '',
-          name: 'Sin Triangle',
-          artist: 'Sidney Gish'
-        }
-      ]
-    },
-    {
-      name: 'Sophia',
-      id: 9,
-      songs: [
-        {
-          type: 'track',
-          imageURL: '',
-          name: "Friday I'm In Love",
-          artist: 'Janet Devlin'
-        }
-      ]
-    }
-  ]
-}
+
 
 // App component
 export default class App extends Component {
   constructor() {
     super();
-    const initialSlots = 5;
     this.state = {
 
       playlistName: null,
 
-      initialSlots,
+      initialSlots: 0,
 
       equalizedShuffle: false,
 
-      users: [
-        // ...fakeData.users.map(user => ({
-        //   ...user,
-        //   slots: initialSlots
-        // }))
-      ],
+      users: [],
 
       /* Login check (temporary placeholder) */
       accessToken: null,
@@ -199,6 +51,7 @@ export default class App extends Component {
       allUsersVisible: false,
       addUserModalIsVisible: false,
       donateSlotModalIsVisible: false,
+      createPlaylistModalIsVisible: false,
     }
 
     // Binding state helper methods
@@ -216,6 +69,7 @@ export default class App extends Component {
     this.removeSong =  this.removeSong.bind(this);
     this.setDonateSlotModal = this.setDonateSlotModal.bind(this);
     this.donateSongSlot = this.donateSongSlot.bind(this);
+    this.setCreatePlaylistModal = this.setCreatePlaylistModal.bind(this);
   }
 
   /*
@@ -241,10 +95,6 @@ export default class App extends Component {
     this.setState({
       initialSlots: num
     })
-  }
-
-  setUsers () {
-
   }
 
   setEqualizedShuffle (val) {
@@ -391,6 +241,14 @@ export default class App extends Component {
     });
 
   }
+
+  setCreatePlaylistModal (isVisible) {
+
+    this.setState({
+      createPlaylistModalIsVisible: isVisible
+    })
+
+  }
   
   /*
    * Takes one empty song slot from donor and gives one empty
@@ -440,7 +298,7 @@ export default class App extends Component {
   // However, the list is guaranteed to be organized in a way
   // that alternates across users, such that each user is guaranteed
   // to go at least once every cycle.
-  organizePlaylist_randomSelection (users) {
+  organize2D_randomOrder (users) {
     // Randomly shuffles elements in array, based off Fisher-Yates algorithm
     function shuffle(array) {
       let m = array.length;
@@ -565,10 +423,6 @@ export default class App extends Component {
 
   render(){
 
-    console.log(
-      'organizePlaylist_randomSelection', this.organizePlaylist_randomSelection(this.state.users)
-    )
-
     // Total stats of all users
     const totalUsers = this.state.users.length;
     const totalSongs = this.state.users.reduce(
@@ -687,6 +541,7 @@ export default class App extends Component {
                 <AddNewUserModal
                   users={this.state.users}
                   addUser={this.addUser}
+                  initialSlots={this.state.initialSlots}
                   close={() => this.setAddUserModal(false)}
                 />
               }
@@ -727,48 +582,29 @@ export default class App extends Component {
               }
             </section>
 
-            <button style={{
+            <button className="primary" style={{
               position: 'fixed',
               right: '1rem',
               bottom: '1rem',
 
-              width: '2rem',
-              height: '2rem',
-
               border: 0,
-              borderRadius: '50%',
 
               boxShadow: '0 8px 16px hsla(0, 0%, 0%, 0.3)',
 
-              fontSize: '1rem'
-            }} onClick={async () => {
-              
-              const response = await fetch('https://api.spotify.com/v1/me', { 
-                headers: { 'Authorization': 'Bearer ' + this.state.accessToken }
-              });
-              const data = await response.json();
-              const user_id = data.id;
-
-              const postData = JSON.stringify({
-                "name": this.state.playlistName,
-                "description": 'This is a cool new Party Playlist',
-                "public": false,
-                "collaborative": true
-              });
-
-              fetch(`https://api.spotify.com/v1/users/${user_id}/playlists`, {
-                headers: {
-                  'Authorization': 'Bearer ' + this.state.accessToken,
-                  'Content-Type': 'application/json'
-                },
-                body: postData,
-                method: 'POST'
-              });
-
-            }}>
+            }} onClick={ () => this.setCreatePlaylistModal(true)}
+            >
               Create playlist!
             </button>
 
+            {this.state.createPlaylistModalIsVisible &&
+            <CreatePlaylistModal
+              accessToken={this.state.accessToken}
+              playlistName={this.state.playlistName}
+              description="This is a new party playlist!"
+              users={this.state.users}
+              close={() => this.setCreatePlaylistModal(false)}
+            />
+            }
             
           </div> // End .App
         ) : ( // Add songs screen: currentScreen === 'AddSongsScreen'

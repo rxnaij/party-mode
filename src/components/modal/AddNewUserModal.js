@@ -10,7 +10,7 @@ import ModalShade from './ModalShade'
  */ 
 export default function AddNewUserModal (props) {
 
-  const { users, addUser, close } = props;
+  const { users, addUser, initialSlots, close } = props;
 
   return(
     <ModalShade close={close} >
@@ -26,7 +26,8 @@ export default function AddNewUserModal (props) {
             const newUser = {
               name: document.getElementById('newUserName').value,
               id: users.length + 1,
-              songs: []
+              songs: [],
+              slots: initialSlots
             };
 
             addUser(newUser);

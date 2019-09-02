@@ -1,6 +1,150 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+// Fake server data
+const fakeData = {
+  users: [
+    {
+      name: 'Andrew',
+      id: 0,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Let it Go',
+          artist: 'Frozen'
+        }
+      ]
+    },
+    {
+      name: 'Steven',
+      id: 1,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Satellite Mind',
+          artist: 'Metric'
+        },
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Lonely Boy',
+          artist: 'The Black Keys'
+        }
+      ]
+    },
+    {
+      name: 'Julia',
+      id: 2,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: "Can't Stop Us",
+          artist: 'Macklemore'
+        }
+      ]
+    },
+    {
+      name: 'Quin',
+      id: 3,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'i',
+          artist: 'Kendrick Lamar'
+        },
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Time',
+          artist: 'Pink Floyd'
+        }
+      ]
+    },
+    {
+      name: 'Christina',
+      id: 4,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Take A Chance On Me',
+          artist: 'ABBA'
+        }
+      ]
+    },
+    {
+      name: 'Richard',
+      id: 5,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Sad Valentine',
+          artist: 'No Vacation'
+        }
+      ]
+    },
+    {
+      name: 'Rosie',
+      id: 6,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Seoul Town Road',
+          artist: 'BTS'
+        }
+      ]
+    },
+    {
+      name: 'Keeling',
+      id: 7,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Kids',
+          artist: 'MGMT'
+        }
+      ]
+    },
+    {
+      name: 'Michael',
+      id: 8,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'La vie en rose',
+          artist: 'Louie Armstrong'
+        },
+        {
+          type: 'track',
+          imageURL: '',
+          name: 'Sin Triangle',
+          artist: 'Sidney Gish'
+        }
+      ]
+    },
+    {
+      name: 'Sophia',
+      id: 9,
+      songs: [
+        {
+          type: 'track',
+          imageURL: '',
+          name: "Friday I'm In Love",
+          artist: 'Janet Devlin'
+        }
+      ]
+    }
+  ]
+}
+
 export default function InitializeScreen (props) {
 
   const { backToApp, setPlaylistName, setInitialSlots, setEqualizedShuffle, addUser } = props.initializeCallbacks;
@@ -102,7 +246,7 @@ export default function InitializeScreen (props) {
             setPlaylistName(playlistName_input);
             setInitialSlots(initialSlots_input);
             setEqualizedShuffle(eqShuffle_input === 'on' ? true : false);
-            usersToAdd.map((user, i) => addUser({
+            fakeData.users.map((user, i) => addUser({
               name: user.name,
               id: i,
               songs: [],
