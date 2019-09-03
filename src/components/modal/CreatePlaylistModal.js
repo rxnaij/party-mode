@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ModalShade from './ModalShade';
-
+import equalizeShuffle from '../playlist/sorting/equalizeShuffle'
+/*
+ * A modal that permits the user to create a Spotify playlist from the tracks
+ * provided in the app.
+ * 
+ * props:
+ * accessToken: Spotify access token for making API requests
+ * playlistName: name of playlist
+ * description: description of playlist
+ * users: users to add
+ * close(): exits modal in parent app
+ */
 export default function CreatePlaylistModal (props) {
 
   const { accessToken, playlistName, description, users, close } = props;
 
-  // Fetches current user's ID from spotify
+  const [equalizedShuffleInput, setEqualizedShuffleInput] = useState(false);
+
+  /*
+   * Returns the user ID of the user currently logged in to Spotify.
+   *
+   * accessToken: access token required to make calls to Spotify API
+   *
+   */ 
   async function getCurrentUserID (accessToken) {
 
     const response = await fetch('https://api.spotify.com/v1/me', { 
@@ -14,13 +32,22 @@ export default function CreatePlaylistModal (props) {
     const data = await response.json();
     const user_id = data.id;
 
-    console.log('user id', user_id)
-
     return user_id;
   }
 
-  // creates new playlist on Spotify
-  // returns ID of that playlist
+  /*
+   *  Creates a new playlist on the current user's Spotify account from the
+   *  songs and playlist data provided in the app.
+   *  Returns the ID of the newly created playlist.
+   *
+   *  accessToken: access token required to make calls to Spotify API
+   *  name: name of playlist
+   *  description: description of playlist
+   *  isPublic: whether the playlist can be viewed by anyone
+   *  isCollaborative: whether other users can add songs to the playlist
+   *
+   */
+
   async function createPlaylist (accessToken, name, description = '', isPublic = false, isCollaborative = false) {
 
     const user_id = await getCurrentUserID(accessToken);
@@ -44,60 +71,104 @@ export default function CreatePlaylistModal (props) {
     const data = await response.json();
     const playlist_id = data.id;
 
-    console.log('playist id', playlist_id);
-
     return playlist_id;
   }
 
-  function assemblePlaylist (users) {
-    const playlist = users.reduce((tracks, user) => tracks.concat(user.songs), []);
+  /*
+   *  Returns a pure array of Spotify tracks from an array of user objects.
+   *
+   *  users: an array of user Objects with songs[] arrays
+   *  equalizeShuffle: whether the playlist is equalized-shuffled
+   * 
+   */ 
+  function assemblePlaylist (users, shouldEqualizeShuffle = false) {
 
-    console.log('assembled playlist', playlist)
+    let playlist = users.reduce((tracksByUser, user) => tracksByUser.concat([user.songs]), []);
+
+    if (shouldEqualizeShuffle) {
+      playlist = equalizeShuffle(playlist);
+    } else {
+      playlist = playlist.flat();
+    }
 
     return playlist;
   }
 
-  function getPlaylistURIs (playlist) {
+  /*
+   *  Returns a JSON object with the key "uris" and the value an array 
+   *  of Spotify track URIs from an array of the corresponding track IDs.
+   *
+   *  playlist: an array of Spotify track objects
+   *
+   */ 
+  function getURIsFromTracks (playlist) {
     const uriList = playlist.reduce((uris, track) => uris.concat(track.uri), []);
     const uriListData = JSON.stringify({"uris": uriList});
-
-    console.log('playlist URIs', uriListData);
 
     return uriListData;
   }
 
-  async function addSongsToPlaylist (playlist_id, users) {
-
-    const playlist = assemblePlaylist(users);
-
-    const tracks = getPlaylistURIs(playlist);
+  /*
+   *  Adds tracks to the specified Spotify playlist.
+   *
+   *  Precondition:
+   *  In this app, this function is assumed to always follow the value of createPlaylist()
+   *  so that it may only add to the playlist just created by the current user.
+   *
+   *  playlist_id: ID of playlist to add songs to
+   *  users: data of user objects containing songs[] arrays of Spotify tracks
+   * 
+   */ 
+  async function addSongsToPlaylist (playlist_id, track_URIs) {
 
     const response = await fetch(`https://api.spotify.com/v1/playlists/${playlist_id}/tracks`, {
       headers: {
         'Authorization': 'Bearer ' +  accessToken,
         'Content-Type': 'application/json'
       },
-      body: tracks,
+      body: track_URIs,
       method: 'POST'
     });
 
     const status = await response.json();
     console.log(status);
+
+    status.status === (200) && console.log('Your Spotify playlist has been created! Check your Spotify app to make sure it exists.')
   }
 
   return(
     <ModalShade
       close={close}
     >
-      <h1>You're about to create the playlist!</h1>
-      <h2>New Playlist Name</h2>
+      <h1>You're about to create a new Party Playlist:</h1>
+      <h2>{playlistName}</h2>
+      <fieldset className="form">
+        <div className="form-section checkbox-input">
+          <div className="checkbox-selection">
+          <label>Equalize shuffle</label>
+          <input
+            type="checkbox"
+            name="equalize-shuffle"
+            value={equalizedShuffleInput}
+            onChange={() => setEqualizedShuffleInput(!equalizedShuffleInput)}
+          />
+          </div>
+          <p className="helper-text">Equalized Shuffle organizes the playlist's songs such that everyone's songs are guaranteed to play in a randomly selected order.</p>
+        </div>
+      </fieldset>
       <button
         className="primary"
         onClick={ async () => {
-          // Create playlist
-          const id = await createPlaylist(accessToken, playlistName, description);
+
+          // Create playlist in Spotify
+          const playlist_id = await createPlaylist(accessToken, playlistName, description);
+
+          // Gather all track URIs
+          const tracks = assemblePlaylist(users, equalizedShuffleInput);
+          const track_URIs = getURIsFromTracks(tracks);
+
           // Add songs to playlist
-          addSongsToPlaylist(id, users);
+          addSongsToPlaylist(playlist_id, track_URIs, users);
         }}
       >
         Create playlist

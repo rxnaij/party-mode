@@ -159,6 +159,7 @@ strong {
 .form-section>label, .form-section>input {
   display: block;
 }
+
 .text-input input, .number-input input {
   border: none;
 
@@ -174,15 +175,18 @@ strong {
 
   font-size: 0.875rem;
 }
-
 .text-input input:focus, .number-input input:focus {
   outline: 4px hsl(240, 100%, 67%) solid;
 }
-
 .text-input input:valid {
   outline-color: none;
 }
-
 .text-input input:invalid {
   outline-color: red;
+}
+
+.checkbox-input>.checkbox-selection {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }

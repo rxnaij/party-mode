@@ -29,7 +29,7 @@ export default class App extends Component {
     super();
     this.state = {
 
-      playlistName: null,
+      playlistName: 'My New Party Playlist',
 
       initialSlots: 0,
 
@@ -294,78 +294,6 @@ export default class App extends Component {
 
   }
 
-  // The order of users and order of songs is randomly selected.
-  // However, the list is guaranteed to be organized in a way
-  // that alternates across users, such that each user is guaranteed
-  // to go at least once every cycle.
-  organize2D_randomOrder (users) {
-    // Randomly shuffles elements in array, based off Fisher-Yates algorithm
-    function shuffle(array) {
-      let m = array.length;
-      let t, i;
-
-      // While there remains elements to shuffle...
-      while (m) {
-
-        // Pick a remaining element randomly...
-        i = Math.floor(Math.random() * m--);
-          // i = random element in array
-          // m = number of unshuffled elements left in array
-
-        // And swap it with the current element.
-        t = array[m]; // t = element at end of unshuffled elements in front of array
-          // swaps last unshuffled element with random element
-        array[m] = array[i]; 
-        array[i] = t;
-      }
-
-      return array;
-    }
-
-
-    let organized = [];
-
-    let maxSlots = this.state.initialSlots; // Maximum number of songs in list
-
-    // Gets each users' songs as arrays...
-    let shuffledSongs = users.reduce((songList, user) => {
-
-      // Identifies the max amount of slots, just in case a user has slots
-      // greater than the initial number of slots set
-      if (user.songs.length > maxSlots) {
-        maxSlots = user.songs.length;
-      }
-
-      // Shuffles current user's set of songs
-      let shuffled = shuffle(user.songs);
-
-      // Adds array of user's songs to array
-      return songList.concat([ shuffled ]);
-      
-    }, [])
-
-    // Get all of the indexes of the users in the playlist
-    // and shuffle the order of their indexes
-    let shuffledUsers = shuffledSongs.map((user, i) => i);
-    shuffledUsers = shuffle(shuffledUsers);
-
-    // Loops through each songSlot in order...
-    for (let i = 0; i < maxSlots; i++) {
-
-      // And, with each songSlot, loops through each user
-      for (let j = 0; j < shuffledUsers.length; j++) {
-
-        if (shuffledSongs[shuffledUsers[j]][i]) { // need to keep direct reference here in case of undefined
-          organized.push(shuffledSongs[shuffledUsers[j]][i]);
-        }
-
-      }
-
-    }
-
-    return organized;
-  }
-
   
 
   // Grouping callbacks
@@ -599,6 +527,7 @@ export default class App extends Component {
             {this.state.createPlaylistModalIsVisible &&
             <CreatePlaylistModal
               accessToken={this.state.accessToken}
+              initialSlots={this.state.initial}
               playlistName={this.state.playlistName}
               description="This is a new party playlist!"
               users={this.state.users}

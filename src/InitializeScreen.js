@@ -176,18 +176,14 @@ export default function InitializeScreen (props) {
           <label htmlFor="name">Name of playlist</label>
           <label htmlFor="name">{playlistName_input.length}/100</label>
           <input type="text" name="playlist-name" id="" maxLength="100" required onChange={event => setPlaylistName_input(event.target.value)}/>
+          {
+            !playlistName_input && <p className="helper-text">You must enter a name for your playlist!</p>
+          }
         </div>
         <div className="form-section number-input">
           <label htmlFor="initial-slots">Starting slots</label>
           <p className="helper-text">Each user can add this many songs.</p>
           <input type="number" name="initial-slots" id="" defaultValue="5" min="1" required onChange={event => setInitialSlots_input(event.target.value)}/>
-        </div>
-        <div className="form-section">
-          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <label htmlFor="equalized-shuffle">Use Equalized Shuffle?</label>
-            <input type="checkbox" name="equalized-shuffle" id="" onChange={event => setEqShuffle_input(event.target.value)}/>
-          </div>
-          <p className="helper-text">Equalized Shuffle organizes the playlist's songs such that everyone's songs are guaranteed to play in a randomly selected order.</p>
         </div>
         <div className="form-section">
           <label htmlFor="add-user">Add playlist contributors:</label>
@@ -238,6 +234,7 @@ export default function InitializeScreen (props) {
               Add user
             </button>
           </div>
+          <p className="helper-text">You can also add more users while you're adding songs.</p>
         </div>
         <div className="section-divider"></div>
         <button 
