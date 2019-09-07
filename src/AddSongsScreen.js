@@ -1,67 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-import SpotifyWebApi from 'spotify-web-api-js';
-import SearchResultsGroup from './components/search-results/SearchResults'
+import SearchResultsGroup from './components/search-results/SearchResultsGroup';
+import SearchBox from './components/search-results/SearchBox'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const SearchBox = props => {
-
-  const { handleSearchInputChange, clearInput } = props;
-
-  const searchInputStyle = {
-    position: 'relative',
-    display: 'inline-block',
-
-    width: '100%',
-    height: '2rem',
-    padding: '1rem',
-
-    borderRadius: '4px',
-    border: 'none',
-
-    boxShadow: '0px 8px 16px hsla(0,0%,0%,0.3)',
-
-    color: 'hsla(0,0%,0%,0.8',
-    fontSize: '1.25rem',
-    fontWeight: '200'
-  }
-
-  const inputClearStyle = {
-    zIndex: 1,
-    position: 'absolute',
-    right: '0.25rem',
-    top: '0.25rem',
-
-    color: '#000000'
-  }
-
-  return(
-    <div>
-      <div>
-        <FontAwesomeIcon icon="search" />
-        <label htmlFor="songSearch">Search for a song: </label>
-      </div>
-      <div style={{
-        position: 'relative'
-      }}>
-        <input
-          type="search"
-          name="songSearch"
-          id="songSearch"
-          style={searchInputStyle}
-          onChange={handleSearchInputChange}
-        />
-        <FontAwesomeIcon
-          icon="times" 
-          style={inputClearStyle}
-          onClick={ () => clearInput()}
-        />
-      </div>
-    </div>
-      
-  )
-}
 
 /*
  * Interface for current user to search for a song and add it to one of their 
@@ -75,7 +18,8 @@ const SearchBox = props => {
  */ 
 export default function AddSongsScreen (props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchData, setSearchData] = useState(null);
+  const [retrievedData, setRetrievedData] = useState(null);
+  const [retrievedDataType, setRetrievedDataType] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
 
   // Prop methods from parent app
@@ -112,7 +56,8 @@ export default function AddSongsScreen (props) {
 
         // only changes state when SearchData components are mounted
         if (mounted) {
-          setSearchData(data);
+          setRetrievedData(data);
+          setRetrievedDataType('search')
         }
 
         console.log(data)
@@ -126,7 +71,8 @@ export default function AddSongsScreen (props) {
       } 
       // When query field is empty, SearchResultsGroup resets to default state
       else {
-        setSearchData(null)
+        setRetrievedData(null);
+        setRetrievedDataType(null);
       }
 
       return () => {
@@ -181,7 +127,8 @@ export default function AddSongsScreen (props) {
             <div>Loading...</div>
           ) : (
             <SearchResultsGroup
-              searchResults={searchData}
+              retrievedData={retrievedData}
+              retrievedDataType={retrievedDataType}
               addSongCallbacks={props.addSongCallbacks}
             />
           ) // exit isLoading?:

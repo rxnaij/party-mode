@@ -190,3 +190,40 @@ strong {
   flex-direction: row;
   justify-content: space-between;
 }
+
+
+
+.SearchResult {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 0.9rem;
+  border-radius: 2px;
+
+  /* Flex container */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.SearchResult>.ImageContainer {
+  width: 3rem;
+  height: 3rem;
+}
+
+.SearchResult>.ImageContainer>.Image {
+  z-index: 2;
+
+  width: inherit;
+  height: inherit;
+
+  border-radius: 4px;
+  box-shadow: 0px 4px 8px hsla(0,0%,0%,0.3);
+}
+
+.SearchResult>.SubtitleContainer {
+  flex-direction: column;
+  flex-grow: 2;
+
+  padding-left: 1.25rem;
+}
