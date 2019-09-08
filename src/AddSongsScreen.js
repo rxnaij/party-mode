@@ -19,7 +19,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 export default function AddSongsScreen (props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [retrievedData, setRetrievedData] = useState(null);
-  const [retrievedDataType, setRetrievedDataType] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
 
   // Prop methods from parent app
@@ -56,8 +55,10 @@ export default function AddSongsScreen (props) {
 
         // only changes state when SearchData components are mounted
         if (mounted) {
-          setRetrievedData(data);
-          setRetrievedDataType('search')
+          setRetrievedData({
+            data,
+            type: 'search'
+          });
         }
 
         console.log(data)
@@ -72,7 +73,6 @@ export default function AddSongsScreen (props) {
       // When query field is empty, SearchResultsGroup resets to default state
       else {
         setRetrievedData(null);
-        setRetrievedDataType(null);
       }
 
       return () => {
@@ -82,6 +82,38 @@ export default function AddSongsScreen (props) {
     },
     [accessToken, searchQuery]
   );
+
+  /*
+   * Returns an Array of Spotify track Objects. The track Objects are simplified for some reason
+   * which means they DO NOT contain album information. What the fuck, Spotify? That's so annoying.
+   * Just because of that ONE TINY thing, I spent the last 4 hours reworking my ENTIRE code for this
+   * one goddamn component. God that's so dumb. Have a middle finger, Spotify. Your design sucks, too.
+   * 
+   * album_id: Spotify ID of the album
+   */ 
+  const getAlbumTracks = async (album_id, imageURL) => {
+
+    const response = await fetch(`https://api.spotify.com/v1/albums/${album_id}`, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+    const album = await response.json();
+
+    const track_IDs = album.tracks.items.map(track => track.id);
+
+    const trackRequests = await fetch(`https://api.spotify.com/v1/tracks/?ids=${track_IDs.join()}`, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    })
+    const fullTrackObjects = await trackRequests.json();
+
+    console.log('full track objects')
+    console.log(fullTrackObjects)
+
+    setRetrievedData({
+      data: fullTrackObjects,
+      type: 'album'
+    });
+    
+  }
 
   return(
     <div className="AddSongsScreen">
@@ -127,8 +159,9 @@ export default function AddSongsScreen (props) {
             <div>Loading...</div>
           ) : (
             <SearchResultsGroup
-              retrievedData={retrievedData}
-              retrievedDataType={retrievedDataType}
+              retrievedData={retrievedData && retrievedData.data}
+              retrievedDataType={retrievedData && retrievedData.type}
+              getAlbumTracks={getAlbumTracks}
               addSongCallbacks={props.addSongCallbacks}
             />
           ) // exit isLoading?:

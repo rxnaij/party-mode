@@ -90,7 +90,7 @@ export default function TrackSearchResult (props) {
       type={type}
       clickAction={clickAction}
       clickActionIcon={clickActionIcon}
-      style={ isAdded && wasAddedStyle }
+      style={isAdded && wasAddedStyle}
     >
       {
         duplicateSongModalIsVisible &&

@@ -3,15 +3,7 @@ import TrackSearchResult from './TrackSearchResult';
 import AlbumSearchResult from './AlbumSearchResult';
 import ArtistSearchResult from './ArtistSearchResult';
 
-async function getFullTrackItem(accessToken) {
-  let id = ''
-  const response = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
-    headers: { 'Authorization': 'Bearer ' + accessToken }
-  })
-  const data = await response.json();
 
-  return data;
-}
 
 
 /*
@@ -93,12 +85,15 @@ export default function SearchResultsGroup (props) {
    * 
    */ 
   const AlbumTracks = props => {
-    const { data, albumImageURL } = props;
+    const { data } = props;
 
+    console.log('data fed into AlbumTracks:')
+    console.log(data)
 
+    
 
     return(
-      data.map(track =>
+      data.tracks.map(track =>
         <TrackSearchResult
           key={track.id}
           item={track}
@@ -119,7 +114,7 @@ export default function SearchResultsGroup (props) {
         }
         {
           retrievedDataType === 'album' &&
-          <AlbumTracks data={retrievedDataType} getAlbumTracks={getAlbumTracks} />
+          <AlbumTracks data={retrievedData} getAlbumTracks={getAlbumTracks} />
         }
         {
           retrievedDataType === 'artist' &&

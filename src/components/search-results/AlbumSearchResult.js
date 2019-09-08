@@ -9,7 +9,13 @@ export default function AlbumSearchResult (props) {
 
   const { id, name, artists, type } = item;
 
-  const clickAction = () => getAlbumTracks(id);
+  const clickAction = () => {
+    const images = item.images;
+    const loc = images.length - 1;
+    const imageURL = loc > 0 ? images[loc].url : null;
+
+    getAlbumTracks(id, item);
+  }
   const clickActionIcon = <FontAwesomeIcon icon="chevron-right" />;
 
   return(
