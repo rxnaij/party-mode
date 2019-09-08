@@ -91,7 +91,7 @@ export default function AddSongsScreen (props) {
    * 
    * album_id: Spotify ID of the album
    */ 
-  const getAlbumTracks = async (album_id, imageURL) => {
+  const getAlbumTracks = async (album_id) => {
 
     const response = await fetch(`https://api.spotify.com/v1/albums/${album_id}`, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
@@ -114,6 +114,40 @@ export default function AddSongsScreen (props) {
     });
     
   }
+
+  const getArtistResults = async (artist_id) => {
+    const getArtistTopTracks = async (artist_id) => {
+      const response = await fetch(`https://api.spotify.com/v1/artists/${artist_id}/top-tracks?country=US`, {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      })
+      const data = await response.json();
+  
+      return data;
+    }
+    const getArtistAlbums = async (artist_id) => {
+      const response = await fetch(`https://api.spotify.com/v1/artists/${artist_id}/albums`, {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      })
+      const data = await response.json();
+  
+      return data;
+    }
+
+    const topTracks = await getArtistTopTracks(artist_id);
+    const albums = await getArtistAlbums(artist_id);
+
+    const results = {
+      topTracks,
+      albums
+    }
+
+    setRetrievedData({
+      data: results,
+      type: 'artist'
+    })
+  }
+
+  
 
   return(
     <div className="AddSongsScreen">
@@ -158,12 +192,19 @@ export default function AddSongsScreen (props) {
           isLoading ? (
             <div>Loading...</div>
           ) : (
-            <SearchResultsGroup
-              retrievedData={retrievedData && retrievedData.data}
-              retrievedDataType={retrievedData && retrievedData.type}
-              getAlbumTracks={getAlbumTracks}
-              addSongCallbacks={props.addSongCallbacks}
-            />
+            <div>
+              <h3>
+                {retrievedData && retrievedData.type}
+              </h3>
+              <SearchResultsGroup
+                retrievedData={retrievedData && retrievedData.data}
+                retrievedDataType={retrievedData && retrievedData.type}
+                getAlbumTracks={getAlbumTracks}
+                getArtistResults={getArtistResults}
+                addSongCallbacks={props.addSongCallbacks}
+              />
+            </div>
+            
           ) // exit isLoading?:
         }
       </div>

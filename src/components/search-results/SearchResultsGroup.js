@@ -17,7 +17,7 @@ import ArtistSearchResult from './ArtistSearchResult';
 export default function SearchResultsGroup (props) {
 
   // Destructuring props
-  const { addSongCallbacks, getAlbumTracks, retrievedData, retrievedDataType } = props;
+  const { addSongCallbacks, getAlbumTracks, getArtistResults, retrievedData, retrievedDataType } = props;
 
   const SearchResults = props => {
     const { data, itemsToShow } = props;
@@ -64,6 +64,7 @@ export default function SearchResultsGroup (props) {
               <ArtistSearchResult 
                 key={artist.id}
                 item={artist}
+                getArtistResults={getArtistResults}
               />
             )
           ) : (
@@ -87,11 +88,6 @@ export default function SearchResultsGroup (props) {
   const AlbumTracks = props => {
     const { data } = props;
 
-    console.log('data fed into AlbumTracks:')
-    console.log(data)
-
-    
-
     return(
       data.tracks.map(track =>
         <TrackSearchResult
@@ -101,6 +97,42 @@ export default function SearchResultsGroup (props) {
         />
       )
     );
+  }
+
+  const ArtistAlbumsAndTopTracks = props => {
+    const { data } = props;
+
+    const { topTracks, albums } = data;
+
+    console.log(data)
+
+    return(
+      <div>
+        <h3>Top Tracks</h3>
+        {
+          topTracks.tracks.slice(0,5).map(track => 
+            <TrackSearchResult
+              key={track.id}
+              item={track}
+              addSongCallbacks={addSongCallbacks}
+            />
+          )
+        }
+        <h3>Albums</h3>
+        {
+          albums.items.map(album => 
+            <AlbumSearchResult 
+              key={album.id}
+              item={album}
+              getAlbumTracks={getAlbumTracks}
+            />
+          )
+        }
+      </div>
+    )
+
+
+
   }
 
   console.log(retrievedDataType)
@@ -119,7 +151,7 @@ export default function SearchResultsGroup (props) {
         {
           retrievedDataType === 'artist' &&
           // Render artist section
-          console.log()
+          <ArtistAlbumsAndTopTracks data={retrievedData} getAlbumTracks={getAlbumTracks} />
         }
       </div>
     ) : (
