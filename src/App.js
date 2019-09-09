@@ -549,10 +549,18 @@ export default class App extends Component {
           )
         )
       ) : ( // Login screen
-        <div>
-          <h1>Welcome to Spotify Party Mode!</h1>
+        <div className="LoginScreen">
+          <div className="section-divider"></div>
+          <h1 className="fade-in">Welcome to Party Mode!</h1>
+          <h2 className="animation-delay" style={{textAlign: 'center'}}>Create and organize collaborative playlists for your party, road trip, etc.</h2>
+          <div className="section-divider"></div>
+          <h3>Signing in to Spotify will grant Party Mode access to the following:</h3>
+          <ul className="bullet-list">
+            <li>Ability to create public and/or private playlists in your Spotify account</li>
+          </ul>
+          <div className="section-divider"></div>
           <button 
-            className="primary"
+            className="primary animation-delay"
             onClick={ () => {
               window.location = window.location.href.includes('localhost') 
               ? 'http://localhost:8888/login'

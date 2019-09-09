@@ -147,23 +147,22 @@ const fakeData = {
 
 export default function InitializeScreen (props) {
 
-  const { backToApp, setPlaylistName, setInitialSlots, setEqualizedShuffle, addUser } = props.initializeCallbacks;
+  const { backToApp, setPlaylistName, setInitialSlots, addUser } = props.initializeCallbacks;
 
-  const [playlistName_input, setPlaylistName_input] = useState('');
+  const [playlistName_input, setPlaylistName_input] = useState(null);
   const [initialSlots_input, setInitialSlots_input] = useState(5);
-  const [eqShuffle_input, setEqShuffle_input] = useState('');
   const [userInput, setUserInput] = useState('');
   const [usersToAdd, setUsersToAdd] = useState([]);
 
-  useEffect(
-    () => {
-      setUsersToAdd([
-        { name: 'Richard' },
-        { name: 'Julian' }
-      ])
-    },
-    []
-  )
+  // useEffect(
+  //   () => {
+  //     setUsersToAdd([
+  //       { name: 'Richard' },
+  //       { name: 'Julian' }
+  //     ])
+  //   },
+  //   []
+  // )
 
   return(
     <div className="InitializeScreen">
@@ -174,10 +173,10 @@ export default function InitializeScreen (props) {
       <form className="form">
         <div className="form-section text-input">
           <label htmlFor="name">Name of playlist</label>
-          <label htmlFor="name">{playlistName_input.length}/100</label>
+          {playlistName_input && <label htmlFor="name"className="helper-text">{playlistName_input.length}/100 characters</label>}
           <input type="text" name="playlist-name" id="" maxLength="100" required onChange={event => setPlaylistName_input(event.target.value)}/>
           {
-            !playlistName_input && <p className="helper-text">You must enter a name for your playlist!</p>
+            (!playlistName_input && playlistName_input === '') && <p className="helper-text">You must enter a name for your playlist!</p>
           }
         </div>
         <div className="form-section number-input">
@@ -187,6 +186,24 @@ export default function InitializeScreen (props) {
         </div>
         <div className="form-section">
           <label htmlFor="add-user">Add playlist contributors:</label>
+          <p className="helper-text">You can also add more users once you've started adding songs.</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <input 
+              type="text" 
+              name="add-user" 
+              id="" 
+              placeholder="Name of contributor" 
+              value={userInput} 
+              onChange={event => setUserInput(event.target.value)}
+            />
+            <button onClick={event => {
+              event.preventDefault();
+              userInput && setUsersToAdd([...usersToAdd, { name: userInput }]);
+              setUserInput('');
+            }}>
+              Add user
+            </button>
+          </div>
           <ul style={{
             fontSize: '0.875rem'
           }}>
@@ -217,24 +234,6 @@ export default function InitializeScreen (props) {
             )
           }
           </ul>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <input 
-              type="text" 
-              name="add-user" 
-              id="" 
-              placeholder="Enter the name of a user to add" 
-              value={userInput} 
-              onChange={event => setUserInput(event.target.value)}
-            />
-            <button onClick={event => {
-              event.preventDefault();
-              userInput && setUsersToAdd([...usersToAdd, { name: userInput }]);
-              setUserInput('');
-            }}>
-              Add user
-            </button>
-          </div>
-          <p className="helper-text">You can also add more users while you're adding songs.</p>
         </div>
         <div className="section-divider"></div>
         <button 
@@ -242,13 +241,18 @@ export default function InitializeScreen (props) {
           onClick={() => {
             setPlaylistName(playlistName_input);
             setInitialSlots(initialSlots_input);
-            setEqualizedShuffle(eqShuffle_input === 'on' ? true : false);
-            fakeData.users.map((user, i) => addUser({
+            // fakeData.users.map((user, i) => addUser({
+            //   name: user.name,
+            //   id: i,
+            //   songs: [],
+            //   slots: initialSlots_input
+            // }));
+            usersToAdd.map((user, i) => addUser({
               name: user.name,
               id: i,
               songs: [],
               slots: initialSlots_input
-            }));
+            }))
             backToApp();
          }}>
           Start adding songs!

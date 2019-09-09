@@ -59,6 +59,38 @@ strong {
   padding-bottom: 3rem;
 }
 
+.fade-in {
+  animation-name: fadein;
+  animation-duration: 1s;
+}
+
+.animation-delay {
+  animation-delay: 0.5s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    margin-top: -2rem;
+  }
+
+  to {
+    margin-top: 0;
+    opacity: 1;
+  }
+}
+
+.LoginScreen {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  margin: 0 auto;
+}
+
+ul.bullet-list>li {
+  /* padding-left: 2rem; */
+}
+
 .song-checkbox {
   appearance: none;
   border-radius: 50%;
@@ -154,10 +186,14 @@ strong {
 
 }
 .form-section>.helper-text {
+  margin-top: 0.25rem;
+
   font-size: 0.75rem;
 }
 .form-section>label, .form-section>input {
   display: block;
+
+  margin-bottom: 0.25rem;
 }
 
 .text-input input, .number-input input {
