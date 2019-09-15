@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ModalShade from './ModalShade';
 import equalizeShuffle from '../playlist/sorting/equalizeShuffle'
+
 /*
  * A modal that permits the user to create a Spotify playlist from the tracks
  * provided in the app.
@@ -17,6 +18,7 @@ export default function CreatePlaylistModal (props) {
   const { accessToken, playlistName, description, users, close } = props;
 
   const [equalizedShuffleInput, setEqualizedShuffleInput] = useState(false);
+  const [successFeedbackLabel, setSuccessFeedbackLabel] = useState(false);
 
   /*
    * Returns the user ID of the user currently logged in to Spotify.
@@ -47,7 +49,6 @@ export default function CreatePlaylistModal (props) {
    *  isCollaborative: whether other users can add songs to the playlist
    *
    */
-
   async function createPlaylist (accessToken, name, description = '', isPublic = false, isCollaborative = false) {
 
     const user_id = await getCurrentUserID(accessToken);
@@ -130,13 +131,17 @@ export default function CreatePlaylistModal (props) {
       method: 'POST'
     });
 
-    const status = await response.json();
-    console.log(status);
-
-    status.status === (200) && console.log('Your Spotify playlist has been created! Check your Spotify app to make sure it exists.')
+    // trigger confirmation feedback
+    const status = response.status;
+    status === 201 && setSuccessFeedbackLabel(true);
   }
 
+
+  /* 
+   *  Component render
+   */
   return(
+
     <ModalShade
       close={close}
     >
@@ -173,6 +178,24 @@ export default function CreatePlaylistModal (props) {
       >
         Create playlist
       </button>
+      {
+        successFeedbackLabel && 
+        <ModalShade
+          close={() => setSuccessFeedbackLabel(false)}
+        >
+          <h2>{ playlistName } has been created! Time to jam!</h2>
+          <p>To listen to the playlist, open your Spotify app and go to your playlists.</p>
+          <button
+            className="primary full-width" 
+            onClick={() => {
+              setSuccessFeedbackLabel(false);
+              close();
+            }}>
+              OK
+            </button>
+        </ModalShade>
+      }
     </ModalShade>
+
   );
 }

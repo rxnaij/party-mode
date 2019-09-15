@@ -185,7 +185,7 @@ export default function AddSongsScreen (props) {
         
       </nav>
 
-      <div className="section-divider"></div>
+      <div style={{ height: '2rem'}}></div>
 
       <div>
         {

@@ -263,10 +263,10 @@ export default class App extends Component {
     const emptySlots = donor.slots - donor.songs.length;
     if (emptySlots < 1) throw new Error(`${donor.name} doesn't have any more slots to give.`);
 
-    const updatedDonor = this.state.users.find(user => user === donor);
+    const updatedDonor = this.state.users.find(user => user.id === donor.id);
     updatedDonor.slots--;
 
-    const updatedRecipient = this.state.users.find(user => user === recipient);
+    const updatedRecipient = this.state.users.find(user => user.id === recipient.id);
     updatedRecipient.slots++;
 
     this.setState({
