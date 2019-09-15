@@ -133,7 +133,8 @@ export default function CreatePlaylistModal (props) {
 
     // trigger confirmation feedback
     const status = response.status;
-    status < 204 && setSuccessFeedbackLabel(true);
+    console.log(status)
+    setSuccessFeedbackLabel(true);
   }
 
 
