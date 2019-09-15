@@ -147,6 +147,8 @@ const fakeData = {
 
 export default function InitializeScreen (props) {
 
+  const { authorizedUserName } = props;
+  console.log(authorizedUserName)
   const { backToApp, setPlaylistName, setInitialSlots, addUser } = props.initializeCallbacks;
 
   const [playlistName_input, setPlaylistName_input] = useState(null);
@@ -167,8 +169,8 @@ export default function InitializeScreen (props) {
   return(
     <div className="InitializeScreen">
       <div className="section-divider"></div>
-      <h1>Start Party Playlist</h1>
-      <h2>You're creating a new party playlist!</h2>
+      <h1>Welcome, { authorizedUserName }!</h1>
+      <h2>Create a new party playlist</h2>
       <div className="section-divider"></div>
       <form className="form">
         <div className="form-section text-input">

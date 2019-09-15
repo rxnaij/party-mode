@@ -29,6 +29,8 @@ export default class App extends Component {
     super();
     this.state = {
 
+      authorizedUserName: '',
+
       playlistName: 'My New Party Playlist',
 
       initialSlots: 0,
@@ -335,11 +337,27 @@ export default class App extends Component {
 
   /* Lifecycle methods */
 
-  componentDidMount() {
+  async componentDidMount() {
 
-    this.setState(state => ({
-      accessToken: new URLSearchParams(window.location.search).get('access_token') || null,
-    }) );
+    const accessToken = new URLSearchParams(window.location.search).get('access_token') || null;
+
+    this.setState({
+      accessToken
+    });
+
+    // gets name of current user
+    if (accessToken) {
+      const name = await fetch('https://api.spotify.com/v1/me', {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      }).then(response => response.json())
+      .then(data => data.display_name || data.id);
+
+      this.setState({
+        authorizedUserName: name
+      });
+
+      console.log(this.state.authorizedUserName)
+    }
 
   }
 
@@ -544,6 +562,7 @@ export default class App extends Component {
             />
           ) : ( // Initialze screen: currentScreen === 'InitializeScreen'
             <InitializeScreen 
+              authorizedUserName={this.state.authorizedUserName}
               initializeCallbacks={this.initializeCallbacks()}
             />
           )
