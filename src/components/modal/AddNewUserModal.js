@@ -17,10 +17,7 @@ export default function AddNewUserModal (props) {
       <form>
         <label to="newUserName">Add new collaborator:</label>
         <input type="text" name="newUserName" id="newUserName"/>
-        <button onClick={ () => close() }>
-          Cancel
-        </button>
-        <button onClick={() => {
+        <button className="primary full-width" onClick={() => {
           if (document.getElementById('newUserName').value) {
             
             const newUser = {
@@ -36,6 +33,9 @@ export default function AddNewUserModal (props) {
           }
         }}>
           Add
+        </button>
+        <button className="secondary full-width" onClick={ () => close() }>
+          Cancel
         </button>
       </form>
     </ModalShade>

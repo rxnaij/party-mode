@@ -29,7 +29,7 @@ export default function DonateSlotModal (props) {
   const { users, currentUser, close, donateSongSlot } = props;
 
   const DonateSlots = props => {
-    const { id, slots, songs, isCurrentUser } = props;
+    const { id, name, slots, songs, isCurrentUser } = props;
 
     const slotsToRender = () => {
       const slotIcons = songs.map((song, i) => <FilledSlotIcon key={`${id}-filled-slot-icon-${i}`} />);
@@ -44,9 +44,12 @@ export default function DonateSlotModal (props) {
     }
       
     return(
-      <div className="donate-slot-icon-container">
-        {slotsToRender()}
-        <span style={{ display: 'inlineBlock' }}>{songs.length}/{slots} slots filled</span>
+      <div className="donation">
+        <span>{name}</span>
+        <div className="donate-slot-icon-container" style={{ marginBottom: isCurrentUser ? '0.5rem' : '3rem' }}>
+          {slotsToRender()}
+          <div>{songs.length}/{slots} slots filled</div>
+        </div>
       </div>
     )
   }
@@ -54,21 +57,15 @@ export default function DonateSlotModal (props) {
   return(
     <ModalShade close={close} >
       <h3>Select the user you would like to give a slot to.</h3>
-      <strong style={{ display: 'inlineBlock' }}>{currentUser.name}</strong>
-      <DonateSlots id={currentUser.id} slots={currentUser.slots} songs={currentUser.songs} isCurrentUser={true} />
+      <DonateSlots id={currentUser.id} name={currentUser.name} slots={currentUser.slots} songs={currentUser.songs} isCurrentUser={true}/>
       <ul>
         {
           users.filter(user => user.id !== currentUser.id).map(user => 
             <li 
               key={`donate-to-${user.id}`}
-              className="donation"
               style={{
-                maxWidth: '10rem',
                 marginBottom: '0.5rem',
-
                 // backgroundColor: 'hsla(149, 37%, 100%, 0.5)',
-
-                lineHeight: '2.5rem'
               }}
               onClick={() => {
                 donateSongSlot(currentUser, user);
@@ -78,8 +75,7 @@ export default function DonateSlotModal (props) {
                 close()
               }}
             >
-              <strong style={{ display: 'inlineBlock' }}>{user.name}</strong>
-              <DonateSlots id={user.id} slots={user.slots} songs={user.songs} isCurrentUser={false} />
+              <DonateSlots id={user.id} name={user.name} slots={user.slots} songs={user.songs} isCurrentUser={false} />
             </li>
           )
         }

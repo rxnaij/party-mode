@@ -34,7 +34,7 @@ export default function SearchResult (props) {
         className="ActionContainer"
         onClick={() => clickAction()}
       >
-        { clickActionIcon }
+        {clickActionIcon}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import MusicSearchResult from './MusicSearchResult'
 import DuplicateSongModal from '../modal/DuplicateSongModal'
 
@@ -63,8 +63,10 @@ export default function TrackSearchResult (props) {
 
       if (willAdd) {
         addSongCallbacks.addSong(item);
-        setIsAdded(true);
+        setWillAdd(false)
       }
+      setIsAdded(true);
+      console.log("Song added")
 
     } else {
       addSongCallbacks.removeSong(item);
@@ -72,12 +74,12 @@ export default function TrackSearchResult (props) {
     }
   }
 
-  const clickActionIcon = (
+  const ClickActionIcon = props => (
     <div
       className="itemSearchResult"
-      style={isAdded ? addButtonStyle_added : addButtonStyle_notAdded}
+      style={props.isAdded ? addButtonStyle_added : addButtonStyle_notAdded}
     >
-      <FontAwesomeIcon icon={isAdded ? "times" : "plus"} />
+      <FontAwesomeIcon icon={props.isAdded ? "times" : "plus"} />
     </div>
   );
   
@@ -89,7 +91,7 @@ export default function TrackSearchResult (props) {
       album={album}
       type={type}
       clickAction={clickAction}
-      clickActionIcon={clickActionIcon}
+      clickActionIcon={<ClickActionIcon isAdded={isAdded} />}
       style={isAdded && wasAddedStyle}
     >
       {
