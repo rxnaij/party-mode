@@ -152,7 +152,7 @@ export default function AddSongsScreen (props) {
   return(
     <div className="AddSongsScreen">
 
-      <div className="section-divider"></div>
+      <div style={{ marginBottom: '2rem' }}></div>
 
       <nav style={{
         display: 'flex',
@@ -184,8 +184,6 @@ export default function AddSongsScreen (props) {
         />
         
       </nav>
-
-      <div style={{ height: '2rem'}}></div>
 
       <div>
         {
