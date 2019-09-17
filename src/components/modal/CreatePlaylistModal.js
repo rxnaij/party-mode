@@ -132,8 +132,11 @@ export default function CreatePlaylistModal (props) {
     });
 
     // trigger confirmation feedback
+    console.log('Response:')
+    console.log(response)
+
     const status = response.status;
-    console.log(status)
+    console.log('Status: ', status);
     setSuccessFeedbackLabel(true);
   }
 
@@ -184,8 +187,8 @@ export default function CreatePlaylistModal (props) {
         <ModalShade
           close={() => setSuccessFeedbackLabel(false)}
         >
-          <h2>{ playlistName } has been created! Time to jam!</h2>
-          <p>To listen to the playlist, open your Spotify app and go to your playlists.</p>
+          <h2>{ playlistName } has been created!<br />Time to jam!</h2>
+          <p style={{ marginBottom: '2rem' }}>You can find this new party playlist under the Playlists tab in your Spotify app.</p>
           <button
             className="primary full-width" 
             onClick={() => {
