@@ -74,6 +74,10 @@ export default function CreatePlaylistModal (props) {
     const data = await response.json();
     const playlist_id = data.id;
 
+    console.log(`%Create Playlist response:`, 'color: green');
+    console.log(response)
+    console.log(`%Create Playlist data:`, 'color: orange');
+    console.log(data)
     console.log(`%cPlaylist ID: ${playlist_id}`, 'color: blue');
 
     return playlist_id;
