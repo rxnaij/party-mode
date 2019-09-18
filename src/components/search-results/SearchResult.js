@@ -6,12 +6,12 @@ import React from 'react';
  * item: search result item to display in this search result
  */ 
 export default function SearchResult (props) {
-  const { name, imageURL, subtitle, clickAction, clickActionIcon } = props;
+  const { name, imageURL, subtitle, clickAction, clickActionIcon, style } = props;
 
   return(
     <div 
       className="SearchResult" 
-      style={{...props.style}}
+      style={{style}}
     >
       <div className="ImageContainer">
         <img 

@@ -181,6 +181,7 @@ export default function AddSongsScreen (props) {
         <SearchBox 
           handleSearchInputChange={ event => setSearchQuery(event.target.value)} 
           clearInput={() => setSearchQuery('')}
+          searchQueryInput={searchQuery}
         />
         
       </nav>

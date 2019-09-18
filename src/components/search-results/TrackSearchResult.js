@@ -77,7 +77,7 @@ export default function TrackSearchResult (props) {
   const ClickActionIcon = props => (
     <div
       className="itemSearchResult"
-      style={props.isAdded ? addButtonStyle_added : addButtonStyle_notAdded}
+      style={props.style}
     >
       <FontAwesomeIcon icon={props.isAdded ? "times" : "plus"} />
     </div>
@@ -91,7 +91,7 @@ export default function TrackSearchResult (props) {
       album={album}
       type={type}
       clickAction={clickAction}
-      clickActionIcon={<ClickActionIcon isAdded={isAdded} />}
+      clickActionIcon={<ClickActionIcon isAdded={isAdded} style={isAdded ? addButtonStyle_added : addButtonStyle_notAdded }/>}
       style={isAdded && wasAddedStyle}
     >
       {

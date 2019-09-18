@@ -34,6 +34,8 @@ export default function CreatePlaylistModal (props) {
     const data = await response.json();
     const user_id = data.id;
 
+    console.log(`%cUser ID: ${user_id}`, 'color: red')
+
     return user_id;
   }
 
@@ -71,6 +73,8 @@ export default function CreatePlaylistModal (props) {
     });
     const data = await response.json();
     const playlist_id = data.id;
+
+    console.log(`%cPlaylist ID: ${playlist_id}`, 'color: blue');
 
     return playlist_id;
   }

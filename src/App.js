@@ -524,7 +524,7 @@ export default class App extends Component {
                     />
                   }
                 </div> :
-                <div>Loading...</div>
+                <div>Add a collaborator to get started.</div>
               }
             </section>
 

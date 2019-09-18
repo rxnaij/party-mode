@@ -3,7 +3,7 @@ import SearchResult from './SearchResult'
 
 export default function MusicSearchResult (props) {
 
-  const { name, album, artists, type, clickAction, clickActionIcon } = props;
+  const { name, album, artists, type, clickAction, clickActionIcon, style } = props;
 
   const a = artists.reduce((artistList, artist) => 
               artistList.concat(artist.name), []).join(', ');
@@ -21,6 +21,7 @@ export default function MusicSearchResult (props) {
       clickAction={clickAction}
       clickActionIcon={clickActionIcon}
       subtitle={subtitle}
+      style={style}
     >
       { props.children }
     </SearchResult>

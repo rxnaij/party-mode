@@ -24,14 +24,14 @@ const inputClearStyle = {
   zIndex: 1,
   position: 'absolute',
   right: '0.25rem',
-  top: '0.25rem',
+  top: '0.3rem',
 
   color: '#000000'
 }
 
 export default function SearchBox (props) {
 
-  const { handleSearchInputChange, clearInput } = props;
+  const { handleSearchInputChange, clearInput, searchQueryInput } = props;
 
   return(
     <div className="form-section">
@@ -50,6 +50,7 @@ export default function SearchBox (props) {
           id="songSearch"
           style={searchInputStyle}
           onChange={handleSearchInputChange}
+          value={searchQueryInput}
         />
         <FontAwesomeIcon
           icon="times" 
