@@ -186,57 +186,6 @@ export default function InitializeScreen (props) {
           <p className="helper-text">Each user can add this many songs.</p>
           <input type="number" name="initial-slots" id="" defaultValue="5" min="1" required onChange={event => setInitialSlots_input(event.target.value)}/>
         </div>
-        <div className="form-section">
-          <label htmlFor="add-user">Add playlist contributors:</label>
-          <p className="helper-text">You can also add more users once you've started adding songs.</p>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <input 
-              type="text" 
-              name="add-user" 
-              id="" 
-              placeholder="Name of contributor" 
-              value={userInput} 
-              onChange={event => setUserInput(event.target.value)}
-            />
-            <button onClick={event => {
-              event.preventDefault();
-              userInput && setUsersToAdd([...usersToAdd, { name: userInput }]);
-              setUserInput('');
-            }}>
-              Add user
-            </button>
-          </div>
-          <ul style={{
-            fontSize: '0.875rem'
-          }}>
-          {
-            usersToAdd.length > 0 && usersToAdd.map((user, i) =>
-              <li 
-                key={`userToAdd-${user.name}-${i}`} 
-                style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between',
-                  padding: '0.5rem 0'
-                }}
-                
-              >
-                <div>
-                  {user.name}
-                </div>
-                <div>
-                  <FontAwesomeIcon
-                    icon="times" 
-                    onClick={() => 
-                      setUsersToAdd(usersToAdd.filter(userToDelete => 
-                        userToDelete.name !== user.name))
-                    } 
-                  />
-                </div>
-              </li>
-            )
-          }
-          </ul>
-        </div>
         <div className="section-divider"></div>
         <button 
           className="primary" 
@@ -249,12 +198,6 @@ export default function InitializeScreen (props) {
             //   songs: [],
             //   slots: initialSlots_input
             // }));
-            usersToAdd.map((user, i) => addUser({
-              name: user.name,
-              id: i,
-              songs: [],
-              slots: initialSlots_input
-            }))
             backToApp();
          }}>
           Start adding songs!

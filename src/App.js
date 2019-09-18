@@ -480,7 +480,7 @@ export default class App extends Component {
                 style={{display: 'block', margin: '0 auto'}}
                 onClick={() => this.setAddUserModal(true)}
               >
-                <FontAwesomeIcon icon={faPlus} /> Add new collaborator
+                <FontAwesomeIcon icon={faPlus} /> Add user
               </button>
               {
                 this.state.addUserModalIsVisible &&
@@ -524,7 +524,7 @@ export default class App extends Component {
                     />
                   }
                 </div> :
-                <div>This is your party playlist! Sweet!<br />Add a user to get started.</div>
+                <div><p class="background-text">This is your party playlist! Sweet!<br />Add a user to get started.</p></div>
               }
             </section>
 

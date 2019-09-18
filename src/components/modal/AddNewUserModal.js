@@ -14,29 +14,33 @@ export default function AddNewUserModal (props) {
 
   return(
     <ModalShade close={close} >
-      <form>
-        <label to="newUserName">Add new collaborator:</label>
-        <input type="text" name="newUserName" id="newUserName"/>
-        <button className="primary full-width" onClick={() => {
-          if (document.getElementById('newUserName').value) {
-            
-            const newUser = {
-              name: document.getElementById('newUserName').value,
-              id: users.length + 1,
-              songs: [],
-              slots: initialSlots
-            };
+      <form className="form">
+        <div className="form-section text-input">
+          <label to="newUserName">Add new user:</label>
+          <input type="text" name="newUserName" id="newUserName"/>
+        </div>
+        <div className="form-section">
+          <button className="primary full-width" onClick={() => {
+            if (document.getElementById('newUserName').value) {
+              
+              const newUser = {
+                name: document.getElementById('newUserName').value,
+                id: users.length + 1,
+                songs: [],
+                slots: initialSlots
+              };
 
-            addUser(newUser);
-            close();
+              addUser(newUser);
+              close();
 
-          }
-        }}>
-          Add
-        </button>
-        <button className="secondary full-width" onClick={ () => close() }>
-          Cancel
-        </button>
+            }
+          }}>
+            Add
+          </button>
+          <button className="secondary full-width" onClick={ () => close() }>
+            Cancel
+          </button>
+        </div>
       </form>
     </ModalShade>
   )

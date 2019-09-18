@@ -47,6 +47,15 @@ h5 {
   margin-bottom: 0.25rem;
 }
 
+.background-text {
+  text-align: center;
+
+  font-size: 1.2rem;
+  line-height: 1.6rem;
+
+  color: hsla(0, 0%, 100%, 0.8);
+}
+
 strong {
   line-height: 1.2rem;
 }
