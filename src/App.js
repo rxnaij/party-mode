@@ -524,7 +524,7 @@ export default class App extends Component {
                     />
                   }
                 </div> :
-                <div>Add a collaborator to get started.</div>
+                <div>This is your party playlist! Sweet!<br />Add a user to get started.</div>
               }
             </section>
 
@@ -583,7 +583,7 @@ export default class App extends Component {
             onClick={ () => {
               window.location = window.location.href.includes('localhost') 
               ? 'http://localhost:8888/login'
-              : 'https://rxnaij-playlists-backend.herokuapp.com/login'
+              : 'https://party-mode-backend.herokuapp.com/login'
             }}
             style={{
               display: 'block',
